@@ -320,10 +320,10 @@ async def _send(bid):
         return
     http = clients.Http()
     try:
-        cid = await chaptarr.send(http, w, w.get("media") or "ebook")
+        cid = await chaptarr.send(http, w, w.get("media") or "ebook")    # [book ids]
     except Exception as ex:
         log.warning("chaptarr send failed: %s", ex)
-        cid = None
+        cid = []
     finally:
         await http.close()
     if cid:
@@ -369,6 +369,6 @@ async def books_act(req: Request, action: str, bid: str, bg: BackgroundTasks):
 
 
 fx.TABS.append(("/books", "Books", "📚"))
-fx.CSS.append("/static/books.css")
+fx.CSS.append("/static/books.css?v=2")
 fx.POST_REFRESH.append(post_refresh)
 fx.POST_REFRESH.append(send_pending)     # retry wants Chaptarr didn't take yet

@@ -35,3 +35,7 @@
   .bk-h{font-size:16px;margin-top:14px}
 }
 .bk-wantrow{display:flex;gap:6px;flex:1 1 100%}.bk-wantrow .btn{flex:1;padding-left:4px;padding-right:4px}
+.bk-wantrow{flex-wrap:wrap}.bk-wantrow .btn{min-width:0;font-size:12px}
+@media (max-width:640px){.bk-wantrow .btn[data-media="both"]{flex-basis:100%}}   /* 2-col phone grid: Ebook|Audio, then Both */
+.acts .bk-wantrow .btn.primary{flex:1 1 40%}                         /* beat style.css's phone "Want = full row" */
+@media (max-width:640px){.acts .bk-wantrow .btn.primary[data-media="both"]{flex-basis:100%}}

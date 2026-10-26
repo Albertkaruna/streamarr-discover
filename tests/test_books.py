@@ -206,3 +206,11 @@ def test_chaptarr_best_match():
            {"title": "Project Hail Mary", "author": {"authorName": "Andy Weir"}}]
     assert chaptarr.best_match(res, "Project Hail Mary", "Andy Weir") is res[2]
     assert chaptarr.best_match(res, "Unknown Book", "Andy Weir") is None
+
+
+def test_chaptarr_skips_summaries():
+    from discover.features import chaptarr
+    res = [{"title": "Summary and Analysis of Project Hail Mary", "author": {"authorName": "Quick Reads"}},
+           {"title": "Project Hail Mary", "author": {"authorName": "Andy Weir"}}]
+    assert chaptarr.best_match(res, "Project Hail Mary", "Andy Weir") is res[1]
+    assert chaptarr.best_match(res[:1], "Project Hail Mary", "Andy Weir") is None
