@@ -13,7 +13,7 @@
       <a href="https://www.goodreads.com/search?q={{ (b.title ~ ' ' ~ b.author) | urlencode }}" target="_blank" rel="noopener">Goodreads</a></div>
     <div class="acts">
       {% if b.wanted %}<button class="btn on" data-bact="unwant" title="Remove from wanted">✓ Wanted</button>
-      {% else %}<button class="btn primary" data-bact="want">+ Want</button>{% endif %}
+      {% else %}{% include "features/books_want.html" %}{% endif %}
       <button class="btn icon" data-bact="dislike" title="Not interested">✕</button>
     </div>
   </div>

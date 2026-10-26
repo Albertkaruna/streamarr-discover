@@ -192,8 +192,17 @@ def test_pages_render():
     assert "OST" in r.text and "/static/books.css" in r.text
     r = c.post("/books/act/want/OL10W", headers={"x-requested-with": "fetch"})
     assert r.json() == {"ok": True, "wants": 1}
-    assert "Chaptarr isn't set up yet" in c.get("/books").text
+    assert "isn't connected" in c.get("/books").text or "Book wants go to" in c.get("/books").text
     c.post("/books/act/unwant/OL10W")
     assert c.post("/books/act/bogus/OL10W").status_code == 404
     m = c.get("/movies")
     assert m.status_code == 200 and "xm-top" in m.text and "<details" in m.text
+
+
+def test_chaptarr_best_match():
+    from discover.features import chaptarr
+    res = [{"title": "The Martian", "author": {"authorName": "Andy Weir"}},
+           {"title": "Project Hail Mary", "author": {"authorName": "Someone Else"}},
+           {"title": "Project Hail Mary", "author": {"authorName": "Andy Weir"}}]
+    assert chaptarr.best_match(res, "Project Hail Mary", "Andy Weir") is res[2]
+    assert chaptarr.best_match(res, "Unknown Book", "Andy Weir") is None

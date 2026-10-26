@@ -34,3 +34,4 @@
   .xm-rows{grid-template-columns:1fr;gap:10px}
   .bk-h{font-size:16px;margin-top:14px}
 }
+.bk-wantrow{display:flex;gap:6px;flex:1 1 100%}.bk-wantrow .btn{flex:1;padding-left:4px;padding-right:4px}

@@ -8,10 +8,11 @@
     {% set rows = xrows[2:] %}{% include "features/cross_rows.html" %}</details>{% endif %}
 </section>{% endif %}
 
-<div class="note bk-note" id="bk-note"{% if not book_wants %} hidden{% endif %}>Chaptarr isn't set up yet — your book wants are saved
-  and will be sent when it is.
+<div class="note bk-note" id="bk-note"{% if not book_wants %} hidden{% endif %}>{% if fx.chaptarr_ready %}Book wants go to
+  Chaptarr, which searches right away — downloads run in the night window.{% else %}Chaptarr isn't connected — your
+  book wants are saved and will be sent when it is.{% endif %}
   <details><summary>Your book wants (<span id="bk-wn">{{ book_wants | length }}</span>)</summary>
-    <ul class="bk-wants">{% for w in book_wants %}<li data-bid="{{ w.id }}"><span><b>{{ w.title }}</b>{% if w.author %} · {{ w.author }}{% endif %}</span>
+    <ul class="bk-wants">{% for w in book_wants %}<li data-bid="{{ w.id }}"><span><b>{{ w.title }}</b>{% if w.author %} · {{ w.author }}{% endif %} · {{ {"ebook": "📖", "audiobook": "🎧", "both": "📖🎧"}[w.media or "ebook"] }}{% if w.chaptarr %} ✓{% endif %}</span>
       <button class="link" data-bact="unwant">Remove</button></li>{% endfor %}</ul></details>
 </div>
 
@@ -19,10 +20,13 @@
 {% if books %}<section class="grid">{% for b in books %}{% include "features/books_card.html" %}{% endfor %}</section>
 {% else %}<p class="empty">No book picks yet — they appear after the next refresh.</p>{% endif %}
 
+<template id="bk-want-tpl">{% include "features/books_want.html" %}</template>
 <script>
 // Book buttons: own endpoint (books aren't TMDB items, so app.js's /act + /card don't apply).
 (() => {
   const saved = new Map();
+  const ICON = {ebook: "📖", audiobook: "🎧", both: "📖🎧"};
+  const WANT = document.getElementById("bk-want-tpl").innerHTML.trim();
   const note = document.getElementById("bk-note");
   document.addEventListener("click", async (e) => {
     const b = e.target.closest("[data-bact]");
@@ -30,7 +34,8 @@
     const el = b.closest("[data-bid]"), id = el.dataset.bid, act = b.dataset.bact;
     b.disabled = true;
     const r = await fetch(`/books/act/${act}/${encodeURIComponent(id)}`, {method: "POST",
-      headers: {"x-requested-with": "fetch", "content-type": "application/json"}, body: el.dataset.book || "{}"});
+      headers: {"x-requested-with": "fetch", "content-type": "application/json"},
+      body: JSON.stringify({...JSON.parse(el.dataset.book || "{}"), media: b.dataset.media || "ebook"})});
     if (r.status === 401) { location.href = "/login"; return; }
     const res = await r.json();
     document.getElementById("bk-wn").textContent = res.wants;
@@ -42,14 +47,13 @@
       el.outerHTML = saved.get(id) || "";
     } else if (el.tagName === "LI") {
       el.remove();
-      document.querySelectorAll(`.card[data-bid="${id}"] [data-bact="unwant"]`).forEach((x) => {
-        x.outerHTML = `<button class="btn primary" data-bact="want">+ Want</button>`;
-      });
+      document.querySelectorAll(`.card[data-bid="${id}"] [data-bact="unwant"]`).forEach((x) => { x.outerHTML = WANT; });
     } else {
       const on = act === "want";
       el.classList.toggle("wanted", on);
-      b.outerHTML = on ? `<button class="btn on" data-bact="unwant" title="Remove from wanted">✓ Wanted</button>`
-                       : `<button class="btn primary" data-bact="want">+ Want</button>`;
+      const row = b.closest(".bk-wantrow") || b;
+      row.outerHTML = on ? `<button class="btn on" data-bact="unwant" title="Remove from wanted">✓ Wanted ${ICON[b.dataset.media] || ""}</button>`
+                         : WANT;
       if (on) { note.hidden = false; note.classList.add("flash"); setTimeout(() => note.classList.remove("flash"), 1200); }
     }
   });

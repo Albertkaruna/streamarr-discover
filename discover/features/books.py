@@ -12,7 +12,7 @@ import logging
 import math
 import time
 
-from fastapi import Request
+from fastapi import BackgroundTasks, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 from discover import features as fx
@@ -311,17 +311,57 @@ async def books_page(req: Request):
         "books": books, "book_wants": wants(), "info": store.meta_get("books:info") or {}})
 
 
+async def _send(bid):
+    """Hand one want to Chaptarr; remember its id so Remove can unmonitor it. Retried at each refresh if it failed."""
+    from discover import clients
+    from discover.features import chaptarr
+    w = next((x for x in wants() if x["id"] == bid), None)
+    if not w or w.get("chaptarr"):
+        return
+    http = clients.Http()
+    try:
+        cid = await chaptarr.send(http, w, w.get("media") or "ebook")
+    except Exception as ex:
+        log.warning("chaptarr send failed: %s", ex)
+        cid = None
+    finally:
+        await http.close()
+    if cid:
+        set_feedback(bid, "want", {**{k: w.get(k) for k in ("title", "author", "year", "cover", "media")}, "chaptarr": cid})
+
+
+async def send_pending(ctx=None):
+    for w in wants():
+        if not w.get("chaptarr"):
+            await _send(w["id"])
+
+
 @fx.router.post("/books/act/{action}/{bid}")
-async def books_act(req: Request, action: str, bid: str):
+async def books_act(req: Request, action: str, bid: str, bg: BackgroundTasks):
+    try:
+        body = await req.json()
+    except Exception:
+        body = {}
     if action in ("want", "dislike"):
-        data = next((b for b in picks() if b["id"] == bid), None)
-        if data is None:                           # e.g. a book shown in the cross-media rows: the page sends it
-            try:
-                data = {k: v for k, v in (await req.json()).items() if k in ("title", "author", "year", "cover")}
-            except Exception:
-                data = {}
-        set_feedback(bid, action, {k: data.get(k) for k in ("title", "author", "year", "cover")})
+        data = next((b for b in picks() if b["id"] == bid), None) or body   # cross-media rows send the book itself
+        keep = {k: data.get(k) for k in ("title", "author", "year", "cover")}
+        if action == "want":
+            keep["media"] = body.get("media") if body.get("media") in ("ebook", "audiobook", "both") else "ebook"
+        set_feedback(bid, action, keep)
+        if action == "want":
+            bg.add_task(_send, bid)                # Chaptarr searches right away; downloads in the night window
     elif action in ("unwant", "undo"):
+        w = next((x for x in wants() if x["id"] == bid), None)
+        if w and w.get("chaptarr"):
+            from discover import clients
+            from discover.features import chaptarr
+            http = clients.Http()
+            try:
+                await chaptarr.unmonitor(http, w["chaptarr"])
+            except Exception as ex:
+                log.warning("chaptarr unmonitor failed: %s", ex)
+            finally:
+                await http.close()
         set_feedback(bid, None)
     else:
         return Response(status_code=404)
@@ -331,3 +371,4 @@ async def books_act(req: Request, action: str, bid: str):
 fx.TABS.append(("/books", "Books", "📚"))
 fx.CSS.append("/static/books.css")
 fx.POST_REFRESH.append(post_refresh)
+fx.POST_REFRESH.append(send_pending)     # retry wants Chaptarr didn't take yet
