@@ -1,0 +1,23 @@
+{% extends "page.html" %}
+{% block content %}
+<section class="st">
+  <h2>Languages</h2>
+  <p class="hint">How much of each language should your picks have? <b>Off</b> hides it, <b>Lots</b> lifts it up the list
+    (no single language takes over the top 30 unless it's your only <b>Lots</b>). Applies right away.</p>
+  {% if saved %}<div class="st-saved">✓ Saved</div>{% endif %}
+  <form method="post" action="/settings" class="st-langs">
+    {% for code, name in langs.items() %}
+    <fieldset class="st-lang{{ ' home' if code == 'ta' }}">
+      <legend>{{ name }}{% if code == 'ta' %} <small>your language</small>{% endif %}</legend>
+      <div class="st-seg">
+        {% for lv in levels %}
+        <input type="radio" id="l-{{ code }}-{{ lv }}" name="{{ code }}" value="{{ lv }}"{{ ' checked' if prefs[code] == lv }}>
+        <label for="l-{{ code }}-{{ lv }}">{{ lv | capitalize }}</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    {% endfor %}
+    <button type="submit" class="btn primary">Save</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Discover · Streamarr</title><meta name="theme-color" content="#0b1020">
+<link rel="manifest" href="/manifest.json"><link rel="icon" href="/static/icon.svg"><link rel="apple-touch-icon" href="/static/icon.svg">
+<link rel="stylesheet" href="/static/style.css?v=2">
+{% for href in fx.CSS %}<link rel="stylesheet" href="{{ href }}">{% endfor %}</head>
+<body>
+<header class="bar">
+  <a class="brand" href="/"><img src="/static/icon.svg" alt=""><span><b>Discover</b><small>by Streamarr</small></span></a>
+  {% for path, label in fx.NAV %}<a class="item" href="{{ path }}">{{ label }}</a>{% endfor %}
+  <a class="item" href="/logout">Sign out</a>
+</header>
+<nav class="tabs">
+  <a href="/movies" class="{{ 'on' if tab == 'movies' }}">🎬<span>Movies</span></a>
+  <a href="/shows" class="{{ 'on' if tab == 'shows' }}">📺<span>Shows</span></a>
+  {% for path, label, icon in fx.TABS %}<a href="{{ path }}" class="{{ 'on' if tab == path.strip('/') }}">{{ icon }}<span>{{ label }}</span></a>{% endfor %}
+  <a href="/wanted" class="{{ 'on' if tab == 'wanted' }}">⭐<span>Wanted{% if wanted_n %} <i class="badge">{{ wanted_n }}</i>{% endif %}</span></a>
+</nav>
+<main>
+  {% if status.setup %}<div class="note">Waiting for keys in <code>.env</code>: {{ status.setup | join(', ') }}.
+    {% if 'TMDB_KEY' in status.setup or 'JELLYFIN_KEY' in status.setup %}Nothing can be recommended until TMDB + Jellyfin are set.{% else %}Works without them, just less smart.{% endif %}</div>{% endif %}
+  <div class="status" id="status" data-running="{{ 1 if status.running else 0 }}">
+    {% if status.running %}<span class="spin"></span> <span id="step">{{ status.step }}…</span>
+    {% else %}<span>{% if status.last %}Updated {{ status.last }}{% else %}Not refreshed yet{% endif %}</span>
+      {% if tab != 'wanted' %}<button class="link" data-refresh>↻ Refresh now</button>{% endif %}{% endif %}
+    {% if status.error %}<span class="err">Last refresh failed: {{ status.error }}</span>{% endif %}
+  </div>
+  {% if tab == 'wanted' %}<p class="hint">Tapped <b>+ Want</b> — Sonarr / Radarr download these in the night window. Removing one stops its download (files you already have stay).</p>{% endif %}
+  {% if tab in ('movies', 'shows') %}{% for t in fx.PAGE_TOP %}{% include t %}{% endfor %}{% endif %}
+  {% block content %}
+  {% if cards %}<section class="grid">{% for c in cards %}{% include "_card.html" %}{% endfor %}</section>
+  {% elif tab == 'wanted' %}<p class="empty">Nothing wanted yet. Tap <b>+ Want</b> on a pick.</p>
+  {% else %}<p class="empty">{% if q %}Nothing matches these filters.{% else %}No picks yet — they appear after the first refresh (a few minutes).{% endif %}</p>{% endif %}
+  {% endblock %}
+</main>
+<script src="/static/app.js?v=2"></script>
+{% for src in fx.JS %}<script src="{{ src }}"></script>{% endfor %}
+</body></html>

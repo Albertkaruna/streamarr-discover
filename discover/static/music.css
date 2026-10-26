@@ -1,0 +1,50 @@
+/* Music tab — same indigo → cyan family; phone first (390px) */
+.mu{max-width:960px;margin:0 auto}
+.mu-sub{margin:0 2px 6px}
+.mu-h{margin:22px 2px 10px;font-size:17px;font-weight:800;background:linear-gradient(90deg,#c7d2fe,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mu-tag{font-style:normal;font-size:10px;font-weight:700;vertical-align:2px;color:#a5f3fc;border:1px solid rgba(34,211,238,.4);border-radius:6px;padding:0 5px}
+.mu-why{display:block;font-size:12.5px;color:#cbd5e1;margin:2px 0 0}
+.mu-acts{display:flex;gap:6px;align-items:center}
+.mu-acts .btn{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;font-size:12px;white-space:nowrap}
+.mu-acts .btn.primary{flex:0 0 auto}
+
+/* artists: horizontal cards, 1 column on phones, 2 on wider screens */
+.mu-artists{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.mu-artist{display:flex;gap:12px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.mu-artist:hover{border-color:rgba(103,232,249,.35)}
+.mu-pic{flex:0 0 72px;height:72px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#312e81,#155e75);display:grid;place-items:center}
+.mu-pic img{width:100%;height:100%;object-fit:cover}
+.mu-pic span{font-size:28px;font-weight:800;color:#e0e7ff}
+.mu-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.mu-body h3{font-size:15px}
+.mu-ex{margin:4px 0 8px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px}
+.mu-ex a{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#c7d2fe;
+  background:rgba(99,102,241,.14);border:1px solid var(--line);border-radius:999px;padding:1px 9px}
+.mu-body .mu-acts{margin-top:auto}
+
+/* songs: compact rows */
+.mu-songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.mu-song{display:grid;grid-template-columns:56px 1fr auto;gap:4px 12px;align-items:center;padding:8px 10px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.mu-song.more{display:none}.mu-songs.all .mu-song.more{display:grid}
+.mu-art{position:relative;width:56px;height:56px;padding:0;border:0;border-radius:9px;overflow:hidden;background:linear-gradient(135deg,#312e81,#155e75)}
+.mu-art img{width:100%;height:100%;object-fit:cover;display:block}
+.mu-art i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:18px;color:#fff;background:rgba(8,11,24,.35);opacity:.85}
+.mu-art.playing i{background:rgba(6,182,212,.55)}
+.mu-art:disabled{cursor:default}
+.mu-txt{min-width:0;display:flex;flex-direction:column}
+.mu-txt b,.mu-txt .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mu-txt b{font-size:14px}
+.mu-more{display:block;margin:12px auto 0}
+.mu-hidden{display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;color:var(--mut);font-size:13px;border:1px dashed var(--line);border-radius:12px}
+.mu-foot{text-align:center;margin-top:18px}
+.mu-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:9;background:rgba(15,18,42,.96);border:1px solid rgba(34,211,238,.4);
+  color:var(--fg);font-size:13px;border-radius:10px;padding:8px 14px;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:90vw}
+
+@media (max-width:640px){
+  .mu-artists{grid-template-columns:1fr}
+  .mu-pic{flex-basis:60px;height:60px}
+  .mu-song{grid-template-columns:52px 1fr;padding:8px}
+  .mu-art{width:52px;height:52px;grid-row:span 2}
+  .mu-song .mu-acts{grid-column:2;justify-content:flex-start}
+  .mu-acts .btn{padding:6px 9px}
+}

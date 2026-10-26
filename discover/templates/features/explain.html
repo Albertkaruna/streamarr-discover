@@ -1,0 +1,19 @@
+<div class="tx-sheet-in" role="dialog" aria-label="Why this pick">
+  <header><b>Why {{ it.title }}?</b><button class="tx-x" data-tx-close aria-label="Close">✕</button></header>
+  {% if bars %}
+  <div class="tx-bars">{% for c, v, w in bars %}
+    <div class="tx-row"><span>{{ c }}</span><div class="tx-bar"><i style="width:{{ (100 * v) | round(1) }}%"></i></div>
+      <small>{{ '%.2f' % v }} × {{ '%.2f' % w }}</small></div>{% endfor %}
+  </div>
+  {% if pick.score %}<p class="tx-mut">Score {{ '%.3f' % pick.score }} (before variety and Gemini re-order).</p>{% endif %}
+  {% else %}<p class="tx-mut">No score on record — this isn't in the current picks.</p>{% endif %}
+  {% if pick.because %}<h4>Because you watched</h4><p>{{ pick.because | join(', ') }}</p>{% endif %}
+  {% if ov.closest %}<h4>Closest to your favourites</h4><p>{{ ov.closest | join(', ') }}</p>{% endif %}
+  {% if ov.genres or ov.keywords or ov.people %}<h4>Shared with what you love</h4>
+  <div class="tx-chips">
+    {% for x in ov.people %}<span class="p">{{ x[0] }} <small>{{ x[1] }}</small></span>{% endfor %}
+    {% for x in ov.keywords %}<span>{{ x }}</span>{% endfor %}
+    {% for x in ov.genres %}<span class="g">{{ x }}</span>{% endfor %}
+  </div>{% endif %}
+  {% if rating %}<p class="tx-mut">You rated it: {{ ratings[rating] }}.</p>{% endif %}
+</div>

@@ -1,0 +1,30 @@
+{% extends "page.html" %}
+{% block content %}
+<section class="tx-head">
+  <h2>Rate your library</h2>
+  <p class="hint">Jellyfin can't see what you watch on your phone. One tap each — your picks follow it from the next refresh. Tap again to clear.</p>
+  <div class="tx-progress" id="tx-progress" data-rated="{{ rated }}" data-total="{{ total }}">
+    <div class="tx-bar"><i style="width:{{ (100 * rated / total) | round(1) if total else 0 }}%"></i></div>
+    <span><b>{{ rated }}</b> of {{ total }} rated</span>
+  </div>
+  <nav class="tx-filter">
+    {% for k, label in (('', 'All'), ('movie', 'Movies'), ('tv', 'Shows')) %}
+    <a href="?kind={{ k }}{{ '&show=unrated' if show }}" class="{{ 'on' if kind == k }}">{{ label }}</a>{% endfor %}
+    <a href="?kind={{ kind }}{{ '' if show else '&show=unrated' }}" class="tx-toggle{{ ' on' if show }}">Unrated only</a>
+  </nav>
+</section>
+{% if tiles %}
+<section class="tx-grid">{% for t in tiles %}
+  <article class="tx-tile{{ ' rated' if t.r }}" data-key="{{ t.key }}" data-r="{{ t.r or '' }}">
+    <div class="tx-poster">{% if t.poster %}<img loading="lazy" src="https://image.tmdb.org/t/p/w185{{ t.poster }}" alt="">{% else %}<div class="noposter">{{ t.title }}</div>{% endif %}</div>
+    <div class="tx-name" title="{{ t.title }}">{{ t.title }} <small>{{ t.year }}</small></div>
+    <div class="tx-btns">
+      <button data-rate="loved" class="{{ 'on' if t.r == 'loved' }}" title="Loved" aria-label="Loved">❤️</button>
+      <button data-rate="ok" class="{{ 'on' if t.r == 'ok' }}" title="OK" aria-label="OK">🙂</button>
+      <button data-rate="meh" class="{{ 'on' if t.r == 'meh' }}" title="Didn't like" aria-label="Didn't like">👎</button>
+    </div>
+  </article>{% endfor %}
+</section>
+{% elif total %}<p class="empty">All rated here — nice.</p>
+{% else %}<p class="empty">Your library shows up here after the next refresh.</p>{% endif %}
+{% endblock %}

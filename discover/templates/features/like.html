@@ -1,0 +1,12 @@
+{% extends "page.html" %}
+{% block content %}
+<style>#status{display:none}</style>
+<div class="likehead">
+  {% if seed.poster %}<img src="https://image.tmdb.org/t/p/w92{{ seed.poster }}" alt="">{% endif %}
+  <div><small>More like</small><h2>{{ seed.title }}{% if seed.year %} <span>({{ seed.year }})</span>{% endif %}</h2>
+  <p>Picked from this one title only — TMDB &amp; Trakt neighbours, ranked by how close they are to it.</p></div>
+</div>
+{% if err %}<p class="err">{{ err }}</p>{% endif %}
+{% if cards %}<section class="grid">{% for c in cards %}{% include "_card.html" %}{% endfor %}</section>
+{% elif not err %}<p class="empty">Nothing new like this — you own or wanted all of its neighbours.</p>{% endif %}
+{% endblock %}

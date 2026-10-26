@@ -1,0 +1,58 @@
+{% extends "page.html" %}
+{% block content %}
+{% set xrows = fx.crossmedia.rows() if fx.crossmedia is defined else [] %}
+{% if xrows %}<section class="xm">
+  <h2 class="bk-h">Beyond the screen <small>books, music &amp; docs for what you love</small></h2>
+  {% set rows = xrows[:2] %}{% include "features/cross_rows.html" %}
+  {% if xrows | length > 2 %}<details class="xm-more"><summary>{{ xrows | length - 2 }} more</summary>
+    {% set rows = xrows[2:] %}{% include "features/cross_rows.html" %}</details>{% endif %}
+</section>{% endif %}
+
+<div class="note bk-note" id="bk-note"{% if not book_wants %} hidden{% endif %}>Chaptarr isn't set up yet — your book wants are saved
+  and will be sent when it is.
+  <details><summary>Your book wants (<span id="bk-wn">{{ book_wants | length }}</span>)</summary>
+    <ul class="bk-wants">{% for w in book_wants %}<li data-bid="{{ w.id }}"><span><b>{{ w.title }}</b>{% if w.author %} · {{ w.author }}{% endif %}</span>
+      <button class="link" data-bact="unwant">Remove</button></li>{% endfor %}</ul></details>
+</div>
+
+<h2 class="bk-h">Books for you <small>{% if info.hardcover %}from your Hardcover shelf + what you watch{% else %}from what you watch{% endif %}</small></h2>
+{% if books %}<section class="grid">{% for b in books %}{% include "features/books_card.html" %}{% endfor %}</section>
+{% else %}<p class="empty">No book picks yet — they appear after the next refresh.</p>{% endif %}
+
+<script>
+// Book buttons: own endpoint (books aren't TMDB items, so app.js's /act + /card don't apply).
+(() => {
+  const saved = new Map();
+  const note = document.getElementById("bk-note");
+  document.addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-bact]");
+    if (!b) return;
+    const el = b.closest("[data-bid]"), id = el.dataset.bid, act = b.dataset.bact;
+    b.disabled = true;
+    const r = await fetch(`/books/act/${act}/${encodeURIComponent(id)}`, {method: "POST",
+      headers: {"x-requested-with": "fetch", "content-type": "application/json"}, body: el.dataset.book || "{}"});
+    if (r.status === 401) { location.href = "/login"; return; }
+    const res = await r.json();
+    document.getElementById("bk-wn").textContent = res.wants;
+    if (act === "dislike") {
+      saved.set(id, el.outerHTML);
+      el.outerHTML = `<div class="hidden-card" data-bid="${id}">Hidden — won't suggest this again
+        <button class="btn" data-bact="undo">Undo</button></div>`;
+    } else if (act === "undo") {
+      el.outerHTML = saved.get(id) || "";
+    } else if (el.tagName === "LI") {
+      el.remove();
+      document.querySelectorAll(`.card[data-bid="${id}"] [data-bact="unwant"]`).forEach((x) => {
+        x.outerHTML = `<button class="btn primary" data-bact="want">+ Want</button>`;
+      });
+    } else {
+      const on = act === "want";
+      el.classList.toggle("wanted", on);
+      b.outerHTML = on ? `<button class="btn on" data-bact="unwant" title="Remove from wanted">✓ Wanted</button>`
+                       : `<button class="btn primary" data-bact="want">+ Want</button>`;
+      if (on) { note.hidden = false; note.classList.add("flash"); setTimeout(() => note.classList.remove("flash"), 1200); }
+    }
+  });
+})();
+</script>
+{% endblock %}

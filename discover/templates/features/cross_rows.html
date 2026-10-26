@@ -1,0 +1,11 @@
+<div class="xm-rows">{% for r in rows %}
+  <div class="xm-row">
+    <div class="xm-head">{% if r.poster %}<img loading="lazy" src="https://image.tmdb.org/t/p/w92{{ r.poster }}" alt="">{% endif %}
+      <span>Because you loved <b>{{ r.loved }}</b>…</span></div>
+    {% for p in r.picks %}<a class="xm-pick" href="{{ p.url }}" target="_blank" rel="noopener">
+      {% if p.cover %}<img class="xm-c xm-{{ p.type }}" loading="lazy" src="{{ p.cover }}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'xm-c xm-i',textContent:'{{ p.icon }}'}))">
+      {% else %}<span class="xm-c xm-i">{{ p.icon }}</span>{% endif %}
+      <span class="xm-t"><small>{{ p.type | capitalize }}</small><b>{{ p.title }}</b>{% if p.by %}<i>{{ p.by }}</i>{% endif %}
+        {% if p.why %}<em>{{ p.why }}</em>{% endif %}</span></a>{% endfor %}
+  </div>{% endfor %}
+</div>

@@ -1,0 +1,36 @@
+/* Books + cross-media — same card family as the movie grid (style.css), just book-shaped extras */
+.bk-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin:18px 2px 10px;font-size:17px}
+.bk-h small{color:var(--mut);font-size:12px;font-weight:600}
+.bk-tag{position:absolute;left:8px;bottom:8px;max-width:calc(100% - 16px);background:linear-gradient(90deg,rgba(99,102,241,.92),rgba(6,182,212,.92));
+  border-radius:7px;padding:1px 7px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-links{font-size:12px;color:var(--mut);margin-top:4px}
+.bk-note{transition:box-shadow .3s}.bk-note.flash{box-shadow:0 0 0 3px rgba(234,179,8,.45)}
+.bk-note summary{cursor:pointer;margin-top:6px;color:#fef3c7}
+.bk-wants{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.bk-wants li{display:flex;justify-content:space-between;gap:10px;align-items:center}
+
+/* cross-media rows */
+.xm-rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.xm-row{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.xm-head{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mut)}
+.xm-head img{width:30px;height:45px;object-fit:cover;border-radius:5px}
+.xm-head b{color:var(--fg)}
+.xm-pick{display:flex;gap:10px;align-items:flex-start;color:var(--fg);padding:6px;border-radius:10px}
+.xm-pick:hover{background:rgba(99,102,241,.12)}
+.xm-c{flex:none;width:44px;height:44px;border-radius:8px;object-fit:cover;background:#111733}
+.xm-c.xm-book,.xm-c.xm-documentary{height:64px}
+.xm-i{display:grid;place-items:center;font-size:20px}
+.xm-t{display:flex;flex-direction:column;min-width:0;font-size:13px;line-height:1.35}
+.xm-t small{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cy)}
+.xm-t i{font-style:normal;color:var(--mut);font-size:12px}
+.xm-t em{font-style:normal;color:#cbd5e1;font-size:12px;margin-top:2px}
+.xm-more,.xm-top{margin-top:10px}
+.xm-more>summary,.xm-top>summary{cursor:pointer;color:#67e8f9;font-size:13px;font-weight:600;padding:4px 2px;margin-bottom:8px}
+.xm-top{background:rgba(99,102,241,.07);border:1px solid var(--line);border-radius:12px;padding:6px 10px;margin:0 0 14px}
+.xm-top[open]{padding-bottom:12px}
+.xm-all{display:inline-block;margin-top:10px;font-size:13px}
+
+@media (max-width:640px){
+  .xm-rows{grid-template-columns:1fr;gap:10px}
+  .bk-h{font-size:16px;margin-top:14px}
+}

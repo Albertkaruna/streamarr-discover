@@ -1,0 +1,47 @@
+/* + Want sheet, download badge, trailer button, "More like" header — Streamarr indigo → cyan */
+.wst{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:6px;font-size:11px;color:var(--mut)}
+.wbadge{font-weight:700;border-radius:6px;padding:1px 7px;background:rgba(99,102,241,.16);color:#c7d2fe}
+.wbadge:empty{display:none}
+.wbadge.lib{background:rgba(34,197,94,.16);color:#86efac}
+.wbadge.dl{background:rgba(34,211,238,.16);color:#67e8f9}
+.wbadge.queued{background:rgba(234,179,8,.14);color:#fde68a}
+.wlike{margin-left:auto;font-weight:600;white-space:nowrap}
+.btn.icon.wtrailer{display:grid;place-items:center;text-decoration:none;color:var(--fg)}
+.wtrailer.off{opacity:.3;pointer-events:none}
+.wedit{font-size:11px;font-weight:600}
+
+body.wlock{overflow:hidden}
+.wsheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(4,6,16,.6);backdrop-filter:blur(3px);animation:wfade .15s}
+.wpanel{width:100%;max-width:440px;max-height:88vh;overflow:auto;background:#0f1430;border:1px solid var(--line);
+  border-radius:18px 18px 0 0;padding:8px 16px calc(14px + env(safe-area-inset-bottom));
+  box-shadow:0 -12px 40px rgba(0,0,0,.5);animation:wup .2s ease-out}
+.wgrip{width:40px;height:4px;border-radius:2px;background:rgba(154,163,192,.35);margin:2px auto 10px}
+.wpanel h4{margin:0 0 6px;font-size:17px}.wpanel h4 span{color:var(--mut);font-weight:500;font-size:14px}
+.wsec{display:block;padding:12px 0;border-top:1px solid var(--line)}
+.wrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.wquick{display:flex;gap:4px}
+.wquick button,.wseg span{border:1px solid var(--line);background:rgba(99,102,241,.1);color:var(--fg);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700}
+.wquick button.on,.wseg input:checked+span{background:linear-gradient(90deg,#6366f1,#06b6d4);border-color:transparent;color:#fff}
+.wseasons{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px}
+.wseasons label{display:flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid var(--line);border-radius:9px;font-weight:700;font-size:13px}
+.wseasons label:has(input:checked){border-color:rgba(34,211,238,.6);background:rgba(34,211,238,.08)}
+.wseasons small{display:block;font-weight:500;color:var(--mut);font-size:10px;margin-left:auto}
+.wpanel input[type=checkbox]{accent-color:var(--cy);width:16px;height:16px;margin:0}
+.wtoggle{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.wtoggle input{margin-top:3px!important}
+.wtoggle small,.west,.wnote{display:block;color:var(--mut);font-size:12px}
+.wseg{display:flex;gap:4px}.wseg input{display:none}.wseg span{display:block;cursor:pointer}
+.wbtns{display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.wbtns .btn{padding:11px 14px;font-size:14px}.wbtns .btn.primary:disabled{opacity:.4}
+.wnote{text-align:center;margin-top:8px}
+@keyframes wup{from{transform:translateY(40px);opacity:.4}}
+@keyframes wfade{from{opacity:0}}
+@media (min-width:641px){.wsheet{align-items:center}.wpanel{border-radius:18px}}
+
+.likehead{display:flex;gap:14px;align-items:center;margin:0 2px 16px}
+.likehead img{width:56px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.likehead small{color:var(--mut);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.likehead h2{margin:0;font-size:20px;background:linear-gradient(90deg,#c7d2fe,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.likehead h2 span{color:var(--mut);-webkit-text-fill-color:var(--mut);font-size:15px;font-weight:500}
+.likehead p{margin:2px 0 0;color:var(--mut);font-size:12px}

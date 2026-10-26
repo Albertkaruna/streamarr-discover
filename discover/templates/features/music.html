@@ -1,0 +1,54 @@
+{% extends "page.html" %}
+{% macro acts(x) -%}
+<div class="mu-acts">
+  <a class="btn primary mu-tunarr" href="{{ x.tunarr }}" target="_blank" rel="noopener" data-q="{{ x.q }}" title="Search this in Tunarr">+ Tunarr</a>
+  <a class="btn mu-yt" href="{{ x.ytm }}" target="_blank" rel="noopener" title="Search on YouTube Music">YT Music</a>
+  <button class="btn icon" data-mu-nope title="Not interested">✕</button>
+</div>
+{%- endmacro %}
+{% block content %}
+<div class="mu">
+{% if not artists and not songs %}
+  <p class="empty">No music picks yet — they appear after the next refresh.<br>
+    <small>The first one takes a few minutes (open-data lookups are polite and cached for a month).</small></p>
+{% else %}
+  <p class="hint mu-sub">From {{ mstats.artists_in_library or 'your' }} artists in Tunarr + Jellyfin{% if mstats.tamil_share is defined %} · {{ (mstats.tamil_share * 100) | round | int }}% Tamil/Indian{% endif %}.
+    <b>+ Tunarr</b> opens Tunarr and searches the song — pick a FLAC.</p>
+
+  {% if artists %}<h2 class="mu-h">Artists you might like</h2>
+  <div class="mu-artists">
+    {% for a in artists %}
+    <article class="mu-artist" data-kind="artist" data-artist="{{ a.name }}">
+      <div class="mu-pic">{% if a.pic %}<img loading="lazy" src="{{ a.pic }}" alt="">{% else %}<span>{{ a.name[:1] }}</span>{% endif %}</div>
+      <div class="mu-body">
+        <h3>{{ a.name }}{% if a.lang == 'ta' %} <i class="mu-tag">Tamil</i>{% endif %}</h3>
+        {% if a.why %}<p class="mu-why">{{ a.why }}</p>{% endif %}
+        {% if a.examples %}<ul class="mu-ex">{% for e in a.examples %}<li><a href="{{ e.ytm }}" target="_blank" rel="noopener">{{ e.title }}</a></li>{% endfor %}</ul>{% endif %}
+        {{ acts(a) }}
+      </div>
+    </article>
+    {% endfor %}
+  </div>{% endif %}
+
+  {% if songs %}<h2 class="mu-h">Songs for you</h2>
+  <ol class="mu-songs" id="mu-songs">
+    {% for s in songs %}
+    <li class="mu-song{{ ' more' if loop.index > 40 }}" data-kind="song" data-artist="{{ s.artist }}" data-title="{{ s.title }}">
+      <button class="mu-art"{% if s.preview %} data-preview="{{ s.preview }}" title="Play a 30 s preview"{% else %} disabled{% endif %}>
+        {% if s.art %}<img loading="lazy" src="{{ s.art }}" alt="">{% endif %}{% if s.preview %}<i>▶</i>{% endif %}</button>
+      <div class="mu-txt">
+        <b>{{ s.title }}</b>
+        <span class="meta">{{ s.artist }}{% if s.film or s.album %} · {{ s.film or s.album }}{% endif %}{% if s.year %} · {{ s.year }}{% endif %}</span>
+        {% if s.why %}<span class="mu-why">{{ s.why }}</span>{% endif %}
+      </div>
+      {{ acts(s) }}
+    </li>
+    {% endfor %}
+  </ol>
+  {% if songs | length > 40 %}<button class="btn mu-more" data-mu-more>Show all {{ songs | length }} songs</button>{% endif %}
+  {% endif %}
+  {% if hidden_n %}<p class="hint mu-foot">{{ hidden_n }} hidden as not interested — they won't come back.</p>{% endif %}
+{% endif %}
+</div>
+<div class="mu-toast" id="mu-toast" hidden></div>
+{% endblock %}

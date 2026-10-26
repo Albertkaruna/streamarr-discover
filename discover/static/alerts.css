@@ -1,0 +1,31 @@
+/* New for you (🔔) + Tonight's pick — Streamarr indigo → cyan */
+.al-sec{margin:4px 0 28px}
+.al-sec h2,.tn-body h2{margin:0 0 2px;font-size:20px}
+.al-sec .hint{margin:0 0 12px}
+.al-empty{margin:24px 0}
+.al-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.al-row{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.al-poster{flex:0 0 64px;aspect-ratio:2/3;border-radius:9px;overflow:hidden;background:#111733}
+.al-poster img{width:100%;height:100%;object-fit:cover;display:block}
+.al-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.al-alert{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;font-size:13px;color:var(--mut)}
+.al-alert.out>span:first-child{color:#67e8f9;font-weight:700}
+.al-alert .btn{padding:6px 12px}
+.al-done{color:#86efac;font-size:12px;font-weight:700}
+
+.tn-hero{display:flex;gap:16px;margin:0 0 18px;padding:14px;border-radius:16px;border:1px solid rgba(103,232,249,.3);
+  background:linear-gradient(120deg,rgba(99,102,241,.22),rgba(6,182,212,.12)),var(--card);box-shadow:0 12px 36px rgba(0,0,0,.35)}
+.tn-poster{flex:0 0 110px;aspect-ratio:2/3;border-radius:11px;overflow:hidden;background:#111733}
+.tn-poster img{width:100%;height:100%;object-fit:cover;display:block}
+.tn-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.tn-body small{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#67e8f9}
+.tn-body .acts{max-width:220px}
+
+@media (max-width:640px){
+  .al-list{grid-template-columns:1fr}
+  .al-poster{flex-basis:54px}
+  .tn-hero{gap:12px;padding:10px}
+  .tn-poster{flex-basis:88px}
+  .tn-body h2{font-size:17px}
+  .tn-body .acts{max-width:none}
+}

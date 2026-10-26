@@ -1,0 +1,35 @@
+{% extends "page.html" %}
+{% block content %}
+<section class="tx-head">
+  <h2>Picks report</h2>
+  <p class="hint">Every refresh logs what you were shown and what you did with it. Once there are {{ min_labels }}+ wants / 👍 / ✕,
+    the ranking weights lean toward whatever separates the picks you take from the ones you skip (each within ±50% of default).</p>
+</section>
+<section class="tx-stats">
+  <div><b>{{ counts.shown }}</b><span>shown</span></div>
+  <div><b>{{ counts.wanted }}</b><span>wanted</span></div>
+  <div><b>{{ counts.liked }}</b><span>👍</span></div>
+  <div><b>{{ counts.disliked }}</b><span>✕</span></div>
+  <div><b>{{ '%.1f' % (100 * counts.wanted / counts.shown) if counts.shown else '–' }}%</b><span>want rate</span></div>
+</section>
+<p class="hint">{% if labelled >= min_labels %}Tuning is on — {{ labelled }} labelled picks.{% else %}Tuning starts after {{ min_labels - labelled }} more wants / 👍 / ✕ ({{ labelled }} so far).{% endif %}
+  {% if tuned %}Weights last fitted {{ tuned }}.{% endif %}</p>
+
+<h3 class="tx-h">Weights</h3>
+{% for mode, label in (('emb', 'With Gemini embeddings'), ('plain', 'Without embeddings')) %}
+<table class="tx-table"><caption>{{ label }}</caption>
+  <tr><th></th><th>default</th><th>now</th></tr>
+  {% for c, d in defaults[mode].items() %}{% set w = weights[mode][c] %}
+  <tr><td>{{ c }}</td><td>{{ '%.2f' % d }}</td>
+    <td class="{{ 'up' if w > d + 0.005 else ('down' if w < d - 0.005) }}">{{ '%.2f' % w }}</td></tr>{% endfor %}
+</table>{% endfor %}
+
+<h3 class="tx-h">What separates your picks</h3>
+<table class="tx-table"><tr><th></th><th>taken</th><th>skipped</th></tr>
+  {% for c, (p, n) in comps.items() %}
+  <tr><td>{{ c }}</td><td>{{ '%.2f' % p if p is not none else '–' }}</td><td>{{ '%.2f' % n if n is not none else '–' }}</td></tr>{% endfor %}
+</table>
+
+<h3 class="tx-h">Library ratings</h3>
+<p class="hint">{% for r, label in ratings.items() %}{{ label }}: <b>{{ rating_counts[r] }}</b>{{ ' · ' if not loop.last }}{% endfor %} — <a href="/rate">rate more</a></p>
+{% endblock %}

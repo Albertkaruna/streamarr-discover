@@ -1,0 +1,23 @@
+{% if tab == 'movies' and not q %}{% set t = fx.tonight.pick() %}{% if t %}
+<section class="tn-hero" data-key="{{ t.key }}">
+  <a class="tn-poster" href="https://www.themoviedb.org/{{ t.kind }}/{{ t.tmdb }}" target="_blank" rel="noopener">
+    {% if t.poster %}<img src="https://image.tmdb.org/t/p/w342{{ t.poster }}" alt="">{% endif %}</a>
+  <div class="tn-body">
+    <small>🌙 Tonight's pick</small>
+    <h2>{{ t.title }}</h2>
+    <div class="meta">{{ t.year }}{% if t.kind == 'tv' %} · Show{% endif %}{% if t.runtime %} · {{ t.runtime // 60 }}h {{ '%02d' % (t.runtime % 60) }}m{% endif %}{% if t.rating %} · ★ {{ '%.1f' % t.rating }}{% endif %}{% if t.genres %} · {{ t.genres[:2] | join(', ') }}{% endif %}</div>
+    {% if t.why %}<p class="why">{{ t.why }}</p>{% endif %}
+    <div class="acts">{% if t.wanted %}<button class="btn on" disabled>✓ Wanted</button>{% else %}<button class="btn primary" data-tn="want">+ Want</button>{% endif %}</div>
+  </div>
+</section>
+<script>
+// Own attribute (not data-act) so app.js doesn't swap the hero for a normal card.
+document.querySelector("[data-tn]")?.addEventListener("click", async (e) => {
+  const b = e.currentTarget, key = b.closest(".tn-hero").dataset.key;
+  b.disabled = true;
+  const r = await fetch(`/act/want/${encodeURIComponent(key)}`, { method: "POST", headers: { "x-requested-with": "fetch" } });
+  if (r.status === 401) return (location.href = "/login");
+  b.className = "btn on"; b.textContent = "✓ Wanted";
+});
+</script>
+{% endif %}{% endif %}
