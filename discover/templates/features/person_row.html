@@ -1,0 +1,7 @@
+<li class="pp-row{{ ' lib' if r.state == 'lib' }}">
+  <span class="pp-thumb">{% if r.poster %}<img loading="lazy" src="/img/w92{{ r.poster }}" alt="">{% endif %}</span>
+  <span class="pp-txt"><b>{{ r.title }}</b>
+    <small>{{ r.date[:4] }}{% if r.kind == 'tv' %} · Series{% endif %}{% if r.rating and r.votes >= 10 %} · ★ {{ '%.1f' % r.rating }}{% endif %}{% if r.roles %} · {{ r.roles | join(' · ') | truncate(40) }}{% endif %}</small>
+    {% if r.label %}<i class="wbadge {{ r.state }}">{{ r.label }}</i>{% endif %}</span>
+  <button class="btn" data-pp-load="{{ r.key }}" data-why="{{ r.roles | join(' · ') | truncate(80) }}" title="Show the full card (+ Want)">Open</button>
+</li>

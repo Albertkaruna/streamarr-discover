@@ -1,0 +1,18 @@
+/* Search: big box, type chips, "already yours" made obvious */
+.sr-form{position:sticky;top:110px;z-index:3;margin:2px 0 10px}
+.sr-form input{width:100%;font:inherit;font-size:16px;color:var(--fg);background:rgba(11,16,32,.95);border:1px solid #283056;
+  border-radius:12px;padding:13px 16px;outline:none;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.sr-form input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.25)}
+.sr-kinds{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px}.sr-kinds::-webkit-scrollbar{display:none}
+.sr-kinds .chip{flex-shrink:0;padding:6px 13px;border-radius:999px;border:1px solid var(--line);color:var(--mut);font-size:13px;font-weight:600}
+.sr-kinds .chip.on{color:#fff;background:rgba(99,102,241,.3);border-color:rgba(129,140,248,.6)}
+.sr-h{font-size:17px;margin:20px 2px 10px}
+.sr-hint small{display:block;margin-top:8px}
+.sr-have{display:inline-block;font-size:12px;font-weight:700;color:#86efac}
+/* owned titles: green edge + ribbon on the poster (status comes from the normal card badge) */
+.sr-grid .card:has(.wbadge.lib){border-color:rgba(34,197,94,.55)}
+.sr-grid .card:has(.wbadge.lib) .poster::after{content:"✅ In library";position:absolute;left:0;right:0;bottom:0;padding:5px 8px;
+  font-size:12px;font-weight:800;color:#dcfce7;background:linear-gradient(transparent,rgba(5,46,22,.92))}
+.sr-grid .bk-card .bk-tag,.sr-owned{border-color:rgba(34,197,94,.45)}
+#sr-results.loading{opacity:.55;transition:opacity .15s}
+@media (max-width:640px){.sr-form{top:56px}}

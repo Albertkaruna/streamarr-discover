@@ -122,3 +122,11 @@ def test_rerank_accepts_ids_without_prefix():
     finally:
         clients.gemini_json, config.GEMINI_KEY = orig, key
     assert {o["key"]: o["why"] for o in out} == {"movie:1": "a", "movie:2": "b"}
+
+
+def test_lots_quota_lifts_buried_language():
+    ranked = [{"key": f"m:{i}", "lang": "en"} for i in range(80)] + [{"key": f"t:{i}", "lang": "ta"} for i in range(20)]
+    out = engine.lots_quota(ranked, lambda r: r["lang"], {"ta"}, share=0.3, top=40)
+    assert sum(r["lang"] == "ta" for r in out[:40]) == 12 and len(out) == 100 and len({r["key"] for r in out}) == 100
+    assert out[:40].index(next(r for r in out if r["lang"] == "ta")) < 6          # first Tamil near the top
+    assert engine.lots_quota(ranked, lambda r: r["lang"], set()) is ranked

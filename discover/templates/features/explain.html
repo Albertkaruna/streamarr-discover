@@ -11,7 +11,7 @@
   {% if ov.closest %}<h4>Closest to your favourites</h4><p>{{ ov.closest | join(', ') }}</p>{% endif %}
   {% if ov.genres or ov.keywords or ov.people %}<h4>Shared with what you love</h4>
   <div class="tx-chips">
-    {% for x in ov.people %}<span class="p">{{ x[0] }} <small>{{ x[1] }}</small></span>{% endfor %}
+    {% for x in ov.people %}<a href="/person/by-name?name={{ x[0] | urlencode }}" title="See all their work"><span class="p">{{ x[0] }} <small>{{ x[1] }}</small> ›</span></a>{% endfor %}
     {% for x in ov.keywords %}<span>{{ x }}</span>{% endfor %}
     {% for x in ov.genres %}<span class="g">{{ x }}</span>{% endfor %}
   </div>{% endif %}

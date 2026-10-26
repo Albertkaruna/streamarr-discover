@@ -9,6 +9,7 @@ import time
 import urllib.parse
 from pathlib import Path
 
+import httpx
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -48,6 +49,19 @@ app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None
 app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 
 
+@app.exception_handler(httpx.HTTPError)
+async def upstream_down(req: Request, ex):
+    """TMDB / Sonarr / Chaptarr unreachable (the hotspot drops connections now and then): say so, don't 500."""
+    log.warning("upstream error on %s: %s", req.url.path, ex)
+    if req.headers.get("x-requested-with") == "fetch" or req.url.path.startswith("/api/"):
+        return JSONResponse({"ok": False, "error": "A service didn't answer — try again in a moment."}, status_code=503)
+    return HTMLResponse("<!doctype html><meta name=viewport content='width=device-width,initial-scale=1'>"
+                        "<body style='background:#0b1020;color:#e8eaf6;font:16px system-ui;padding:40px 20px;text-align:center'>"
+                        "<h2>Couldn't reach TMDB / the server just now</h2><p>The connection dropped — usually the hotspot."
+                        "</p><p><a style='color:#67e8f9' href='javascript:location.reload()'>Try again</a> · "
+                        "<a style='color:#67e8f9' href='/'>Home</a></p></body>", status_code=503)
+
+
 # ---------------- auth: same idea as Tunarr — sign-in page + long-lived cookie ----------------
 PUBLIC = ("/login", "/static/", "/manifest.json", "/lists/")
 
@@ -65,7 +79,7 @@ async def auth(req: Request, call_next):
         return await call_next(req)
     if hmac.compare_digest(req.cookies.get("discover", ""), config.SESSION):
         return await call_next(req)
-    if p in ("/api/summary", "/api/tonight") and _basic_ok(req):       # Homepage tiles only
+    if p in ("/api/summary", "/api/tonight", "/api/radar") and _basic_ok(req):       # Homepage tiles only
         return await call_next(req)
     if req.headers.get("x-requested-with") == "fetch":
         return JSONResponse({"error": "signed out"}, status_code=401)

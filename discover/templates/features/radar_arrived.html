@@ -1,0 +1,4 @@
+<div class="rd-arrived" role="status">
+  <span>🎉 <b>Arrived:</b> {% for a in R.arrivals %}{{ a.title }}{{ ' (now digital)' if a.how == 'digital' }}{{ ', ' if not loop.last }}{% endfor %}</span>
+  <button class="link" data-radar-dismiss aria-label="Dismiss">✕</button>
+</div>

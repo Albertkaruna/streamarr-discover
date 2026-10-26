@@ -370,5 +370,6 @@ async def books_act(req: Request, action: str, bid: str, bg: BackgroundTasks):
 
 fx.TABS.append(("/books", "Books", "📚"))
 fx.CSS.append("/static/books.css?v=2")
+fx.JS.append("/static/books.js?v=1")
 fx.POST_REFRESH.append(post_refresh)
 fx.POST_REFRESH.append(send_pending)     # retry wants Chaptarr didn't take yet

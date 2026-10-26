@@ -1,5 +1,5 @@
 {% set ol = "https://openlibrary.org/works/" ~ b.id %}
-<article class="card bk-card{{ ' wanted' if b.wanted }}" data-bid="{{ b.id }}">
+<article class="card bk-card{{ ' wanted' if b.wanted }}" data-bid="{{ b.id }}" data-book='{{ {"title": b.title, "author": b.author, "year": b.year, "cover": b.cover} | tojson }}'>
   <a class="poster" href="{{ ol }}" target="_blank" rel="noopener">
     {% if b.cover %}<img loading="lazy" src="https://covers.openlibrary.org/b/id/{{ b.cover }}-M.jpg" alt="">{% else %}<div class="noposter">{{ b.title }}</div>{% endif %}
     {% if b.rating %}<span class="rate">★ {{ '%.1f' % b.rating }}</span>{% endif %}

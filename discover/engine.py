@@ -229,3 +229,23 @@ def tune_weights(events, defaults=None, min_labels=15, gain=2.0, bound=0.5):
             raw[c] = d * (1 + max(-bound, min(bound, gain * sep)))
         out[mode] = _bounded_norm(raw, base, bound)
     return out, labelled
+
+
+def lots_quota(ranked, lang_of, lots, share=0.3, top=40):
+    """'Lots' languages (Settings) get at least `share` of the top `top` picks: their best-ranked titles are pulled up
+    and interleaved evenly. Without this a mostly-English library buries them below the cut-off."""
+    if not lots:
+        return ranked
+    want = int(share * top)
+    have = [r for r in ranked[:top] if lang_of(r) in lots]
+    if len(have) >= want:
+        return ranked
+    extra = [r for r in ranked[top:] if lang_of(r) in lots][:want - len(have)]
+    if not extra:
+        return ranked
+    pick = set(id(r) for r in extra)
+    rest = [r for r in ranked if id(r) not in pick]
+    head, step = rest[:top - len(extra)], max(1, (top - len(extra)) // (len(extra) + 1))
+    for i, r in enumerate(extra):                   # every `step` places, starting near the top
+        head.insert(min(len(head), (i + 1) * step + i), r)
+    return head + rest[top - len(extra):]

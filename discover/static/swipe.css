@@ -1,0 +1,71 @@
+/* Swipe: Quick-rate button, the deck on /swipe, and the ✕ "why not?" sheet */
+.sw-quick{display:inline-flex;align-items:center;gap:8px;margin:0 0 10px;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;
+  color:var(--fg);background:linear-gradient(90deg,rgba(99,102,241,.25),rgba(6,182,212,.2));border:1px solid var(--line)}
+.sw-quick small{color:var(--mut);font-weight:600}
+
+main:has(.sw) .status{display:none}             /* the deck wants the whole screen */
+.sw{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.sw-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sw-kind{display:flex;gap:4px}
+.sw-kind a{font-size:12px;font-weight:700;color:var(--mut);padding:4px 10px;border-radius:999px;border:1px solid var(--line)}
+.sw-kind a.on{color:var(--fg);background:rgba(99,102,241,.25)}
+.sw-today{font-size:13px;color:var(--mut)}.sw-today b{color:var(--fg)}
+
+/* height: viewport minus top bar, head, buttons, sub-row and (phones) the bottom tabs */
+.sw-stack{position:relative;height:min(calc(100dvh - 300px),640px);min-height:340px}
+.sw-card{position:absolute;inset:0;border-radius:18px;overflow:hidden;background:#111733;border:1px solid var(--line);
+  box-shadow:0 14px 40px rgba(0,0,0,.45);user-select:none;-webkit-user-select:none}
+.sw-card.top{touch-action:none;cursor:grab}.sw-card.top:active{cursor:grabbing}
+.sw-card.next{transform:scale(.95) translateY(10px);opacity:.6}
+.sw-card img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.sw-card .noposter{font-size:20px}
+.sw-info{position:absolute;left:0;right:0;bottom:0;padding:60px 16px 14px;
+  background:linear-gradient(transparent,rgba(5,8,20,.85) 40%,rgba(5,8,20,.95))}
+.sw-info h2{margin:0;font-size:22px;line-height:1.2}
+.sw-info .why{margin-top:6px;font-size:13px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.sw-lib{position:absolute;top:10px;right:10px;background:rgba(34,211,238,.85);color:#04121a;border-radius:7px;padding:1px 8px;font-size:12px;font-weight:800}
+.sw-card .rate{top:10px;left:10px}
+.sw-stamp{position:absolute;top:22px;padding:4px 12px;border-radius:10px;border:3px solid;font:800 22px/1.2 system-ui;
+  font-style:normal;opacity:0;pointer-events:none;background:rgba(5,8,20,.55)}
+.sw-stamp.r{left:18px;color:#86efac;transform:rotate(-12deg)}
+.sw-stamp.l{right:18px;color:#fca5a5;transform:rotate(12deg)}
+.sw-stamp.u{left:50%;top:40%;transform:translateX(-50%);color:#67e8f9}
+.sw-done{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:10px;color:var(--mut);margin:0}
+
+.sw-btns{display:flex;justify-content:center;gap:14px}
+.sw-b{display:flex;flex-direction:column;align-items:center;justify-content:center;width:64px;height:64px;border-radius:50%;
+  border:1px solid var(--line);background:var(--card);color:var(--fg);font-size:22px;line-height:1;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.sw-b small{font-size:10px;font-weight:700;color:var(--mut);margin-top:3px}
+.sw-b.no{border-color:rgba(248,113,113,.45)}.sw-b.yes{border-color:rgba(74,222,128,.5)}
+.sw-b.want{background:linear-gradient(135deg,#6366f1,#06b6d4);border:0}.sw-b.want small{color:#e0f2fe}
+.sw-b:active{transform:scale(.93)}
+.sw-sub{display:flex;align-items:center;justify-content:space-between;font-size:13px}
+.sw-sub .link{background:none;border:0;color:#67e8f9;padding:6px 4px}.sw-sub .link:disabled{opacity:.35}
+.sw-keys{color:var(--mut);font-size:11px}
+@media (pointer:coarse){.sw-keys{display:none}}
+
+.sw-reasons{max-width:440px;margin:28px auto 0;padding-top:12px;border-top:1px solid var(--line)}
+.sw-reasons h3{font-size:14px;margin-bottom:8px}
+.sw-rcounts{display:flex;flex-wrap:wrap;gap:6px}
+.sw-rcounts span{font-size:12px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,.12);border:1px solid var(--line)}
+.sw-reasons .hint{margin:8px 0 0}
+
+/* ✕ sheet: bottom sheet on phones, same look as the explain sheet */
+.sw-sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,6,16,.6);backdrop-filter:blur(3px)}
+.sw-sheet-in{width:100%;max-width:460px;background:#10142c;border:1px solid var(--line);border-radius:16px 16px 0 0;
+  padding:14px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.5)}
+.sw-sheet-in header{display:flex;align-items:center;gap:10px}
+.sw-sheet-in header b{flex:1;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sw-sheet-in h4{margin:14px 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.sw-seen{display:flex;gap:8px}.sw-seen .btn{flex:1;padding:11px 6px;font-size:14px}
+.sw-why{display:flex;flex-wrap:wrap;gap:8px}
+.sw-chip{font:inherit;font-size:13px;font-weight:600;color:var(--fg);padding:9px 13px;border-radius:999px;
+  background:rgba(99,102,241,.1);border:1px solid var(--line)}
+.sw-chip:active{background:rgba(99,102,241,.3)}
+.tx-x{border:0;background:rgba(99,102,241,.15);color:var(--fg);border-radius:8px;width:32px;height:32px}
+
+@media (max-width:640px){
+  .sw-stack{height:calc(100dvh - 330px)}          /* bottom tab bar is fixed on phones */
+  .sw-b{width:58px;height:58px}
+}
+@media (min-width:641px){.sw-sheet{align-items:center}.sw-sheet-in{border-radius:16px}}

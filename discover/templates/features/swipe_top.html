@@ -1,0 +1,2 @@
+{% set n = fx.swipe.left_count('movie' if tab == 'movies' else 'tv') %}{% if n %}
+<a class="sw-quick" href="/swipe?kind={{ 'movie' if tab == 'movies' else 'tv' }}">🔥 Quick-rate picks <small>{{ n }} to go</small></a>{% endif %}

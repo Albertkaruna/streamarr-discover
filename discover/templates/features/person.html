@@ -1,0 +1,30 @@
+{% extends "page.html" %}
+{% block content %}
+{% if not p %}<p class="empty">Couldn't load this person from TMDB. <a href="/search">Search instead</a></p>
+{% else %}
+<header class="pp-head">
+  <div class="pp-photo">{% if p.profile_path %}<img src="/img/w185{{ p.profile_path }}" alt="">{% else %}<span>{{ p.name[:1] }}</span>{% endif %}</div>
+  <div class="pp-info">
+    <h1>{{ p.name }}</h1>
+    <div class="meta">{{ p.known_for_department or '' }}{% if born %} · Born {{ born }}{% endif %}{% if p.deathday %} · Died {{ p.deathday[:4] }}{% endif %}{% if p.place_of_birth %} · {{ p.place_of_birth }}{% endif %}</div>
+    {% if p.biography %}<p class="pp-bio" data-pp-bio title="Tap to read more">{{ p.biography }}</p>{% endif %}
+    <a class="pp-tmdb" href="https://www.themoviedb.org/person/{{ p.id }}" target="_blank" rel="noopener">TMDB ›</a>
+  </div>
+</header>
+{% if secs %}<nav class="pp-jump">{% for s in secs %}<a href="#{{ s.id }}">{{ s.label }} <small>{{ s.have }}/{{ s.total }}</small></a>{% endfor %}</nav>{% endif %}
+{% for s in secs %}
+<section class="pp-sec" id="{{ s.id }}">
+  <h2>{{ s.label }} <small>You have {{ s.have }} of {{ s.total }}</small></h2>
+  <div class="pp-ctl">
+    {% for k, label in filters %}<a class="chip{{ ' on' if s.f == k }}" href="{{ s.links.f[k] }}">{{ label }} <small>{{ s.n[k] }}</small></a>{% endfor %}
+    <span class="pp-sort">{% for k, label in sorts %}<a class="{{ 'on' if s.sort == k }}" href="{{ s.links.sort[k] }}">{{ label }}</a>{% endfor %}</span>
+  </div>
+  {% if s.cards %}<div class="grid pp-grid">{% for c in s.cards %}{% include "_card.html" %}{% endfor %}</div>
+  {% elif not s.rest %}<p class="empty pp-none">Nothing here{% if s.f == 'lib' %} yet — none of these are in your library{% endif %}.</p>{% endif %}
+  {% if s.rest %}<ol class="pp-rows">{% for r in s.rest %}{% include "features/person_row.html" %}{% endfor %}</ol>{% endif %}
+  {% if s.more %}<p class="hint">+{{ s.more }} more on <a href="https://www.themoviedb.org/person/{{ p.id }}" target="_blank" rel="noopener">TMDB</a>.</p>{% endif %}
+</section>
+{% else %}<p class="empty">No movies or shows found for {{ p.name }}.</p>
+{% endfor %}
+{% endif %}
+{% endblock %}

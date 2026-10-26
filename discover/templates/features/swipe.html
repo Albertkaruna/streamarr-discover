@@ -1,0 +1,28 @@
+{% extends "page.html" %}
+{% block content %}
+<section class="sw" id="sw" data-kind="{{ kind }}">
+  <header class="sw-head">
+    <nav class="sw-kind">{% for k, label in (('', 'All'), ('movie', 'Movies'), ('tv', 'Shows')) %}
+      <a href="/swipe{{ '?kind=' ~ k if k }}" class="{{ 'on' if kind == k }}">{{ label }}</a>{% endfor %}</nav>
+    <span class="sw-today">🔥 <b id="sw-today">{{ today }}</b> rated today</span>
+  </header>
+  <div class="sw-stack" id="sw-stack" aria-live="polite"></div>
+  <div class="sw-btns" id="sw-btns"></div>
+  <div class="sw-sub">
+    <button class="link" id="sw-undo" disabled>↶ Undo</button>
+    <span class="sw-keys">← → ↑ · S seen · Space skip · U undo</span>
+    <button class="link" id="sw-skip">Skip →</button>
+  </div>
+</section>
+<script id="sw-data" type="application/json">{{ deck | tojson }}</script>
+
+<section class="sw-reasons">
+  <h3>Your ✕ reasons</h3>
+  {% if summary.total %}
+  <div class="sw-rcounts">{% for r, label in reasons.items() %}<span>{{ label }} <b>{{ summary.counts[r] }}</b></span>{% endfor %}</div>
+  {% for r, title in (('lang', 'Languages'), ('genre', 'Genres')) %}{% if summary.tops[r] %}
+  <p class="hint">{{ title }}: {% for name, n in summary.tops[r] %}{{ name }} ×{{ n }}{{ ', ' if not loop.last }}{% endfor %}</p>{% endif %}{% endfor %}
+  <p class="hint">These gently push similar picks down at the next refresh — never hide them.</p>
+  {% else %}<p class="hint">Tap ✕ on any card to say why — "too slow", "not my language"… — and picks adjust a little.</p>{% endif %}
+</section>
+{% endblock %}

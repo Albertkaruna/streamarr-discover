@@ -1,0 +1,17 @@
+{% extends "page.html" %}
+{% block content %}
+<form class="sr-form" action="/search" method="get" role="search">
+  <input id="sr-q" name="q" type="search" value="{{ sq }}" placeholder="Search movies, shows, books, songs, people…"
+         autocomplete="off" autocapitalize="none" enterkeyhint="search"{% if not sq %} autofocus{% endif %}>
+  <input type="hidden" name="type" id="sr-type" value="{{ skind }}">
+</form>
+<nav class="sr-kinds">
+  {% for k, label in (("all", "All"), ("movie", "🎬 Movies"), ("tv", "📺 Shows"), ("book", "📚 Books"), ("music", "🎵 Songs")) %}
+  <a href="?q={{ sq | urlencode }}&type={{ k }}" data-kind="{{ k }}" class="chip{{ ' on' if skind == k }}">{{ label }}</a>
+  {% endfor %}
+</nav>
+<template id="bk-want-tpl">{% include "features/books_want.html" %}</template>
+<div class="mu"><div class="mu-toast" id="mu-toast" hidden></div>   {# music.js needs these to wire previews / + Tunarr #}
+  <div id="sr-results">{% include "features/search_results.html" %}</div>
+</div>
+{% endblock %}

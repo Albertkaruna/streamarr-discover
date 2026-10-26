@@ -267,7 +267,7 @@ async def tmdb_doc(http, title):
     x = res[0]
     return {"title": x.get("title") or x.get("name"), "year": (x.get("release_date") or x.get("first_air_date") or "")[:4],
             "url": f"https://www.themoviedb.org/{x['media_type']}/{x['id']}",
-            "cover": f"https://image.tmdb.org/t/p/w154{x['poster_path']}" if x.get("poster_path") else ""}
+            "cover": f"/img/w154{x['poster_path']}" if x.get("poster_path") else ""}
 
 
 # ---------------- Gemini, answer cached by prompt ----------------

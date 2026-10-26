@@ -1,0 +1,37 @@
+{% if not sq %}
+<p class="empty sr-hint">Type a title, a person (actor or director), a book or a song.<br>
+  <small>Results come from everything out there — anything you already have is marked <b class="sr-have">✅ In library</b>.</small></p>
+{% elif not titles and not books and not songs and not people %}
+<p class="empty">Nothing found for “{{ sq }}”.</p>
+{% else %}
+  {% if people %}<h2 class="sr-h">People</h2>
+  <nav class="pp-people">{% for x in people %}
+    <a class="pp-person" href="/person/{{ x.id }}"><span class="pp-face">{% if x.photo %}<img loading="lazy" src="/img/w185{{ x.photo }}" alt="">{% else %}{{ x.name[:1] }}{% endif %}</span>
+      <b>{{ x.name }}</b><small>{{ x.dept }}</small></a>{% endfor %}
+  </nav>{% endif %}
+
+  {% if titles %}<h2 class="sr-h">Movies &amp; shows</h2>
+  <section class="grid sr-grid">{% for c in titles %}{% include "_card.html" %}{% endfor %}</section>{% endif %}
+
+  {% if books %}<h2 class="sr-h">Books</h2>
+  <section class="grid sr-grid">{% for b in books %}{% include "features/books_card.html" %}{% endfor %}</section>{% endif %}
+
+  {% if songs %}<h2 class="sr-h">Songs</h2>
+  <ol class="mu-songs">
+    {% for s in songs %}
+    <li class="mu-song{{ ' sr-owned' if s.have }}">
+      <button class="mu-art"{% if s.preview %} data-preview="{{ s.preview }}" title="Play a 30 s preview"{% else %} disabled{% endif %}>
+        {% if s.art %}<img loading="lazy" src="{{ s.art }}" alt="">{% endif %}{% if s.preview %}<i>▶</i>{% endif %}</button>
+      <div class="mu-txt">
+        <b>{{ s.title }}</b>
+        <span class="meta">{{ s.artist }}{% if s.album %} · {{ s.album }}{% endif %}{% if s.year %} · {{ s.year }}{% endif %}</span>
+        {% if s.have %}<span class="sr-have">✅ In library</span>{% endif %}
+      </div>
+      <div class="mu-acts">
+        <a class="btn primary mu-tunarr" href="{{ s.tunarr }}" target="_blank" rel="noopener" data-q="{{ s.q }}" title="Search this in Tunarr">+ Tunarr</a>
+        <a class="btn mu-yt" href="{{ s.ytm }}" target="_blank" rel="noopener">YT Music</a>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>{% endif %}
+{% endif %}

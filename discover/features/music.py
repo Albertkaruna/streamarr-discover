@@ -139,6 +139,7 @@ async def refresh_music(ctx):
     src.deadline[0] = t0 + BUDGET
     audio, favs = await _jellyfin_music(http)
     artists, owned = mc.taste(_tunarr_state(), audio, favs)
+    store.meta_put("music:owned", sorted(owned))       # search marks songs you already have
     if not artists:
         store.meta_put("music:stats", {"seeds": 0, "ts": time.time()})
         return

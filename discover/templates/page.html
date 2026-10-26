@@ -2,13 +2,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Discover · Streamarr</title><meta name="theme-color" content="#0b1020">
 <link rel="manifest" href="/manifest.json"><link rel="icon" href="/static/icon.svg"><link rel="apple-touch-icon" href="/static/icon.svg">
-<link rel="stylesheet" href="/static/style.css?v=2">
+<link rel="stylesheet" href="/static/style.css?v=3">
 {% for href in fx.CSS %}<link rel="stylesheet" href="{{ href }}">{% endfor %}</head>
 <body>
 <header class="bar">
   <a class="brand" href="/"><img src="/static/icon.svg" alt=""><span><b>Discover</b><small>by Streamarr</small></span></a>
-  {% for path, label in fx.NAV %}<a class="item" href="{{ path }}">{{ label }}</a>{% endfor %}
-  <a class="item" href="/logout">Sign out</a>
+  {% set main = ("/search", "/swipe", "/coming") %}   {# the rest go in ☰ so the bar fits a phone #}
+  {% for path, label in fx.NAV if path in main %}<a class="item" href="{{ path }}">{{ label }}</a>{% endfor %}
+  <details class="more"><summary class="item" title="More">☰</summary><div class="more-menu">
+    {% for path, label in fx.NAV if path not in main %}<a href="{{ path }}">{{ label }}</a>{% endfor %}
+    <a href="/logout">Sign out</a></div></details>
 </header>
 <nav class="tabs">
   <a href="/movies" class="{{ 'on' if tab == 'movies' }}">🎬<span>Movies</span></a>

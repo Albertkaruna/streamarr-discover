@@ -16,7 +16,7 @@
 {% if tiles %}
 <section class="tx-grid">{% for t in tiles %}
   <article class="tx-tile{{ ' rated' if t.r }}" data-key="{{ t.key }}" data-r="{{ t.r or '' }}">
-    <div class="tx-poster">{% if t.poster %}<img loading="lazy" src="https://image.tmdb.org/t/p/w185{{ t.poster }}" alt="">{% else %}<div class="noposter">{{ t.title }}</div>{% endif %}</div>
+    <div class="tx-poster">{% if t.poster %}<img loading="lazy" src="/img/w185{{ t.poster }}" alt="">{% else %}<div class="noposter">{{ t.title }}</div>{% endif %}</div>
     <div class="tx-name" title="{{ t.title }}">{{ t.title }} <small>{{ t.year }}</small></div>
     <div class="tx-btns">
       <button data-rate="loved" class="{{ 'on' if t.r == 'loved' }}" title="Loved" aria-label="Loved">❤️</button>

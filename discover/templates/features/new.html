@@ -6,7 +6,7 @@
   {% if seasons %}<div class="al-list">{% for r in seasons %}
     <article class="al-row">
       <a class="al-poster" href="https://www.themoviedb.org/tv/{{ r.tmdb }}" target="_blank" rel="noopener">
-        {% if r.poster %}<img loading="lazy" src="https://image.tmdb.org/t/p/w154{{ r.poster }}" alt="">{% endif %}</a>
+        {% if r.poster %}<img loading="lazy" src="/img/w154{{ r.poster }}" alt="">{% endif %}</a>
       <div class="al-body">
         <h3>{{ r.title }}</h3>
         {% for a in r.alerts %}<div class="al-alert {{ a.state }}">

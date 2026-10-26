@@ -1,6 +1,6 @@
 <article class="card{{ ' wanted' if c.wanted }}" data-key="{{ c.key }}">
   <a class="poster" href="https://www.themoviedb.org/{{ c.kind }}/{{ c.tmdb }}" target="_blank" rel="noopener">
-    {% if c.poster %}<img loading="lazy" src="https://image.tmdb.org/t/p/w342{{ c.poster }}" alt="">{% else %}<div class="noposter">{{ c.title }}</div>{% endif %}
+    {% if c.poster %}<img loading="lazy" src="/img/w342{{ c.poster }}" alt="">{% else %}<div class="noposter">{{ c.title }}</div>{% endif %}
     {% if c.rating %}<span class="rate">★ {{ '%.1f' % c.rating }}</span>{% endif %}
     {% if c.wanted %}<span class="flag">Wanted</span>{% endif %}
   </a>

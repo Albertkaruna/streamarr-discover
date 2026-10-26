@@ -12,6 +12,7 @@ state = {"running": False, "step": "", "error": ""}
 
 SRC_RECS, SRC_SIMILAR, SRC_TRAKT, SRC_PEOPLE = 1.0, 0.5, 0.8, 0.4
 MAX_SEEDS, MAX_CANDIDATES, MIN_VOTES = 60, 300, 30
+SRC_LANG, LOTS_SEEDS, LOTS_CANDS, LOTS_MIN_VOTES = 0.3, 15, 40, 10   # "Lots" languages (Settings) get their own share
 
 
 async def _resolve(http, row):
@@ -106,8 +107,11 @@ async def refresh():
                 if seed_title and seed_title not in because.setdefault(key, []):
                     because[key].append(seed_title)
 
-            related = await _gather([clients.trakt_related(http, kind, s.get("imdb")) for s, _ in pos[:MAX_SEEDS]])
-            for (s, w), rel in zip(pos[:MAX_SEEDS], related):
+            # "Lots" languages: a mostly-English library would otherwise crowd them out of the seeds and the pool
+            lots = {g for g, v in (store.pref("languages") or {}).items() if v == "lots" and g != "other"}
+            gen = pos[:MAX_SEEDS] + [x for x in pos[MAX_SEEDS:] if x[0].get("lang") in lots][:LOTS_SEEDS]
+            related = await _gather([clients.trakt_related(http, kind, s.get("imdb")) for s, _ in gen])
+            for (s, w), rel in zip(gen, related):
                 for r, tid in enumerate(s["recs"][:20]):
                     add(tid, w * SRC_RECS / (1 + 0.08 * r), s["title"])
                 for r, tid in enumerate(s["similar"][:12]):
@@ -119,13 +123,29 @@ async def refresh():
                     if k2 == kind:
                         add(tid, SRC_PEOPLE * math.log1p(people[name]), name)
 
+            lang_keys = []                               # well-rated titles straight from TMDB in each "Lots" language
+            for lang in sorted(lots):
+                for page in (1, 2):
+                    try:
+                        r = await clients.tmdb(http, f"/discover/{kind}", cache=7 * 86400, with_original_language=lang,
+                                               sort_by="vote_count.desc", page=page, **{"vote_average.gte": "6.5"})
+                    except Exception as ex:
+                        log.warning("lots-language discover %s: %s", lang, ex)
+                        break
+                    for r_, x in enumerate(r.get("results") or []):
+                        add(x["id"], SRC_LANG / (1 + 0.05 * r_), None)
+                        lang_keys.append(f"{kind}:{x['id']}")
             keys = sorted(support, key=lambda k: -support[k])[:MAX_CANDIDATES]
+            keys += [k for k in dict.fromkeys(lang_keys) if k in support and k not in keys][:LOTS_CANDS]
             cands = [c for c in await _gather([clients.tmdb_item(http, kind, k.split(":")[1]) for k in keys])
-                     if c["released"] and not c["adult"] and c["votes"] >= MIN_VOTES]
+                     if c["released"] and not c["adult"]
+                     and c["votes"] >= (LOTS_MIN_VOTES if c.get("lang") in lots else MIN_VOTES)]   # Tamil films have few TMDB votes
 
             state["step"] = "Understanding plots (Gemini)"
-            vecs = await ai.ensure_embeddings(http, cands + [s for s, _ in pos[:MAX_SEEDS] + neg])
-            ranked = engine.rank(cands, support, because, pos, neg, vecs)
+            vecs = await ai.ensure_embeddings(http, cands + [s for s, _ in gen + neg])
+            cand_by = {c["key"]: c for c in cands}
+            ranked = engine.rank(cands, support, because, pos, neg, vecs, limit=90)   # wider, trimmed to 60 below
+            ranked = engine.lots_quota(ranked, lambda r: (cand_by.get(r["key"]) or {}).get("lang"), lots)
             state["step"] = "Picking the best (Gemini)"
             ranked = await ai.rerank(http, kind, ranked, {c["key"]: c for c in cands}, pos, neg)
             ctx = {"http": http, "kind": kind, "ranked": ranked, "cands": {c["key"]: c for c in cands},
@@ -137,7 +157,7 @@ async def refresh():
                 except Exception:
                     log.exception("refresh hook %s failed", hook.__qualname__)
             all_cands.update(ctx["cands"])
-            store.save_picks(kind, ctx["ranked"])
+            store.save_picks(kind, ctx["ranked"][:60])
 
         post = {"http": http, "items": {**seed_items, **all_cands}, "seeds_w": seeds_w, "owned": owned,
                 "exclude": exclude, "people": people}

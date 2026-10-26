@@ -1,0 +1,15 @@
+{% extends "page.html" %}
+{% block content %}
+{% if arrivals %}{% set R = {"arrivals": arrivals} %}{% include "features/radar_arrived.html" %}{% endif %}
+<p class="hint rd-intro">Films already in theatres and waiting for their OTT / digital release — that's when a proper HD
+  copy appears. Tamil films usually reach Prime / Netflix / Hotstar 4–8 weeks after theatres. <b>+ Want</b> now and Radarr
+  grabs the HD release when it's out (cam rips are blocked); 🔔 <b>Notify me</b> only tells you.</p>
+{% if not computed %}<p class="empty">The release radar fills in after the next refresh.</p>{% endif %}
+{% for id, title, hint, cards in sections %}{% if cards %}
+<section class="rd-sec" id="{{ id }}">
+  <h2>{{ title }} <i class="badge">{{ cards | length }}</i></h2>
+  <p class="hint">{{ hint }}</p>
+  <section class="grid">{% for c in cards %}{% include "_card.html" %}{% endfor %}</section>
+</section>
+{% endif %}{% endfor %}
+{% endblock %}

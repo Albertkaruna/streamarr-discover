@@ -1,0 +1,15 @@
+{% extends "page.html" %}
+{% block content %}
+<section class="sh-page">
+  <a class="sh-back" href="{{ back }}">‹ {{ 'Movies' if shelf.kind == 'movie' else 'Shows' }}</a>
+  <h2>{{ shelf.title }}</h2>
+  {% if shelf.subtitle %}<p class="hint">{{ shelf.subtitle }}</p>{% endif %}
+</section>
+{% if cards %}<section class="grid">{% for c in cards %}{% include "_card.html" %}{% endfor %}</section>
+{% else %}<p class="empty">Everything on this shelf is wanted or hidden now.</p>{% endif %}
+<script>
+// Tiles link to #c-<key>; tag cards here too so the jump works even without other features' scripts.
+document.querySelectorAll(".card[data-key]").forEach((c) => { c.id = "c-" + c.dataset.key; });
+if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView({ block: "center" });
+</script>
+{% endblock %}

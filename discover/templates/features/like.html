@@ -2,7 +2,7 @@
 {% block content %}
 <style>#status{display:none}</style>
 <div class="likehead">
-  {% if seed.poster %}<img src="https://image.tmdb.org/t/p/w92{{ seed.poster }}" alt="">{% endif %}
+  {% if seed.poster %}<img src="/img/w92{{ seed.poster }}" alt="">{% endif %}
   <div><small>More like</small><h2>{{ seed.title }}{% if seed.year %} <span>({{ seed.year }})</span>{% endif %}</h2>
   <p>Picked from this one title only — TMDB &amp; Trakt neighbours, ranked by how close they are to it.</p></div>
 </div>

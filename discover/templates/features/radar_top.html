@@ -1,0 +1,15 @@
+{% if tab == 'movies' and fx.radar is defined %}{% set R = fx.radar.top() %}
+{% if R.arrivals %}{% include "features/radar_arrived.html" %}{% endif %}
+{% if R.tiles %}
+<section class="rd-top">
+  <h2>🎬 In theatres · coming to OTT <a href="/coming">All ›</a></h2>
+  <div class="rd-strip">
+    {% for c in R.tiles %}<a class="rd-tile" href="/coming#c-{{ c.key }}" title="{{ c.title }}">
+      {% if c.poster %}<img loading="lazy" src="/img/w185{{ c.poster }}" alt="">{% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
+      <span class="rd-badge{{ ' now' if c.badge == 'In theatres' }}">{{ c.badge }}</span>
+      {% if c.wanted %}<span class="rd-want" title="Wanted">✓</span>{% endif %}
+      <b>{{ c.title }}</b>{% if c.sub %}<small>{{ c.sub }}</small>{% endif %}
+    </a>{% endfor %}
+  </div>
+</section>
+{% endif %}{% endif %}

@@ -18,7 +18,7 @@
   <h2>💎 Hidden gems <small>great, little-known, your taste</small></h2>
   <div class="bz-strip">
     {% for c in B.gems %}<a class="bz-gem" href="#c-{{ c.key }}" title="{{ c.title }}">
-      {% if c.poster %}<img loading="lazy" src="https://image.tmdb.org/t/p/w185{{ c.poster }}" alt="">{% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
+      {% if c.poster %}<img loading="lazy" src="/img/w185{{ c.poster }}" alt="">{% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
       <span class="rate">★ {{ '%.1f' % c.rating }}</span>
       <b>{{ c.title }}</b><small>{{ c.year }} · {{ c.votes }} votes</small>
     </a>{% endfor %}

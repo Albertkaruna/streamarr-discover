@@ -84,3 +84,10 @@ body.login main{min-height:100vh;display:grid;place-items:center;padding:24px 16
   .brand small{display:none}.brand b{font-size:16px}.item{font-size:13px;padding:6px 7px}
   .acts{gap:5px}.acts .btn.primary,.acts .btn.on{flex:1 1 100%}   /* Want gets its own full-width row */
 }
+
+/* ☰ menu for the less-used header links (Settings, Rate, Report, Sign out) */
+.bar{overflow:visible}.more{position:relative;flex-shrink:0}
+.more summary{list-style:none;cursor:pointer;font-size:18px}.more summary::-webkit-details-marker{display:none}
+.more-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:170px;display:flex;flex-direction:column;padding:6px;
+  background:rgba(12,16,36,.98);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.5);z-index:20}
+.more-menu a{color:var(--fg);padding:10px 12px;border-radius:8px;font-size:14px}.more-menu a:hover{background:rgba(99,102,241,.15);text-decoration:none}
