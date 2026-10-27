@@ -183,3 +183,11 @@ def test_like_page_template():
         tab="like", cards=[c], seed={"title": "Seed", "year": "1999", "poster": "/p.jpg"}, err="",
         status={"running": False, "step": "", "error": "", "last": None, "setup": []}, q={}, wanted_n=0, fx=web.features)
     assert "More like" in html and "Seed" in html and 'data-key="movie:1"' in html
+
+
+def test_like_why_names_the_real_link_not_the_seed():
+    seed = {"title": "Seed", "people": [["director", "Ann"], ["cast", "Bo"], ["cast", "Cy"]], "keywords": ["heist", "twins"]}
+    assert wl.link_why(seed, {"people": [["director", "Ann"], ["cast", "Bo"]], "keywords": ["heist"]}) == "Also by Ann"
+    assert wl.link_why(seed, {"people": [["cast", "Cy"], ["cast", "Bo"]], "keywords": []}) == "Also with Bo and Cy"
+    assert wl.link_why(seed, {"people": [], "keywords": ["twins", "heist", "rain"]}) == "Also: twins, heist"
+    assert wl.link_why(seed, {"people": [["cast", "Zed"]], "keywords": ["rain"]}) == ""

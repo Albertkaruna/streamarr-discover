@@ -97,9 +97,23 @@ async def build_like(http, key):
     got = await asyncio.gather(*[clients.tmdb_item(http, kind, k.split(":")[1]) for k in keys], return_exceptions=True)
     cands = [c for c in got if isinstance(c, dict) and c["released"] and not c["adult"] and c["votes"] >= MIN_VOTES]
     vecs = store.embeddings_get([c["key"] for c in cands] + [key], config.GEMINI_EMBED_MODEL)
-    ranked = engine.rank(cands, support, {c["key"]: [seed["title"]] for c in cands}, [(seed, 1.0)], [], vecs,
-                         limit=LIKE_N * 2)
-    return seed, [{**r, "why": ""} for r in ranked]
+    ranked = engine.rank(cands, support, {}, [(seed, 1.0)], [], vecs, limit=LIKE_N * 2)
+    by = {c["key"]: c for c in cands}
+    return seed, [{**r, "why": link_why(seed, by[r["key"]])} for r in ranked]
+
+
+def link_why(seed, c):
+    """What this title concretely shares with the seed — the page header already says "More like <seed>",
+    so repeating "Because you watched <seed>" on every card says nothing. No real link → no line."""
+    sp, cp = {tuple(p) for p in seed.get("people", [])}, {tuple(p) for p in c.get("people", [])}
+    makers = [n for r, n in sp & cp if r in ("director", "creator", "writer")]
+    if makers:
+        return f"Also by {makers[0]}"
+    cast = [n for r, n in sp & cp if r == "cast"]
+    if cast:
+        return "Also with " + " and ".join(sorted(cast)[:2])
+    kw = [k for k in c.get("keywords", []) if k in set(seed.get("keywords", []))]
+    return "Also: " + ", ".join(kw[:3]) if kw else ""
 
 
 @fx.router.get("/like/{key}", response_class=HTMLResponse)
@@ -107,7 +121,7 @@ async def like_page(req: Request, key: str):
     from discover import app as web            # late import: app imports the features
     if ":" not in key or key.split(":")[0] not in ("movie", "tv"):
         return HTMLResponse("Not found", 404)
-    hit = store.meta_get(f"like:{key}")
+    hit = store.meta_get(f"like2:{key}")   # like2: cached picks carry why, not because
     seed, picks, err = None, [], ""
     if hit and time.time() - hit["ts"] < DAY:
         seed, picks = store.items_get([key]).get(key), hit["picks"]
@@ -115,7 +129,7 @@ async def like_page(req: Request, key: str):
         http = clients.Http()
         try:
             seed, picks = await build_like(http, key)
-            store.meta_put(f"like:{key}", {"ts": time.time(), "picks": picks})
+            store.meta_put(f"like2:{key}", {"ts": time.time(), "picks": picks})
         except Exception as ex:
             log.warning("more like %s: %s", key, ex)
             err = "Couldn't reach TMDB — try again in a minute."
