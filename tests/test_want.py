@@ -191,3 +191,11 @@ def test_like_why_names_the_real_link_not_the_seed():
     assert wl.link_why(seed, {"people": [["cast", "Cy"], ["cast", "Bo"]], "keywords": []}) == "Also with Bo and Cy"
     assert wl.link_why(seed, {"people": [], "keywords": ["twins", "heist", "rain"]}) == "Also: twins, heist"
     assert wl.link_why(seed, {"people": [["cast", "Zed"]], "keywords": ["rain"]}) == ""
+
+
+def test_thin_because_caps_each_seed_per_page():
+    from discover import app as web
+    cs = [{"key": f"m:{i}", "because": ["A", "B"]} for i in range(3)] + [{"key": "m:9", "why": "x", "because": ["A"]}]
+    out = web.thin_because(cs, cap=2)
+    assert [c["because"] for c in out] == [["A", "B"], ["A", "B"], [], ["A"]]     # why-lines untouched
+    assert cs[2]["because"] == ["A", "B"]                                          # input not mutated

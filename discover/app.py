@@ -165,9 +165,24 @@ def cards_for(picks):
     return out
 
 
+def thin_because(cards, cap=2):
+    """Name each watched title in at most `cap` "Because you watched…" lines per page (in page order), so one
+    favourite doesn't caption half the grid. A card whose seeds are all used up shows no line."""
+    used, out = {}, []
+    for c in cards:
+        if c.get("why") or not c.get("because"):
+            out.append(c)
+            continue
+        keep = [s for s in c["because"] if used.get(s, 0) < cap][:2]
+        for s in keep:
+            used[s] = used.get(s, 0) + 1
+        out.append({**c, "because": keep})
+    return out
+
+
 def render_page(req, tab, cards, template="page.html", **extra):
     """Every full page: the shell (page.html) needs tab, status, query and the Wanted count."""
-    return tpl.TemplateResponse(req, template, {"tab": tab, "title": TITLES.get(tab), "cards": cards,
+    return tpl.TemplateResponse(req, template, {"tab": tab, "title": TITLES.get(tab), "cards": thin_because(cards),
                                                 "status": _status(), "q": req.query_params,
                                                 "wanted_n": len(store.wants()), **extra})
 
