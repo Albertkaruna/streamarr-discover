@@ -101,8 +101,11 @@ def sparse_cos(a, b):
 
 
 def cos(a, b):
-    dot = sum(x * y for x, y in zip(a, b))
-    return dot / ((math.sqrt(sum(x * x for x in a)) * math.sqrt(sum(y * y for y in b))) or 1.0)
+    # sumprod runs in C: ~30x faster than a generator, and the ranking thread then barely holds the GIL
+    # (pure-Python sums here made page loads wait seconds during a refresh)
+    if len(a) != len(b):
+        return 0.0
+    return math.sumprod(a, b) / ((math.sqrt(math.sumprod(a, a)) * math.sqrt(math.sumprod(b, b))) or 1.0)
 
 
 def quality(item):

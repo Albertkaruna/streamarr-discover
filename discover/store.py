@@ -27,6 +27,7 @@ def db():
         config.DATA.mkdir(parents=True, exist_ok=True)
         con = sqlite3.connect(config.DATA / "discover.db", timeout=30)
         con.execute("PRAGMA journal_mode=WAL")
+        con.execute("PRAGMA synchronous=NORMAL")      # WAL-safe; no fsync per commit (refresh writes hundreds, on the event loop)
         con.executescript(SCHEMA)
         if "extra" not in [r[1] for r in con.execute("PRAGMA table_info(picks)")]:   # pre-features databases
             con.execute("ALTER TABLE picks ADD COLUMN extra TEXT DEFAULT '{}'")
