@@ -2,5 +2,5 @@
 {% if c.radar %}<div class="rd-slot">
   <span class="rd-when">{{ c.radar.badge }}{% if c.radar.digital %} · {{ c.radar.digital }}{% endif %}</span>
   <button class="rd-notify{{ ' on' if c.radar.notify }}" data-radar-notify="{{ c.key }}"
-    title="Track without downloading — tells you when it's out digitally">🔔 {{ 'Notifying' if c.radar.notify else 'Notify me' }}</button>
+    title="Track without downloading — tells you when it's out digitally">{{ icon('bell') }}{{ 'Notifying' if c.radar.notify else 'Notify me' }}</button>
 </div>{% endif %}

@@ -1,4 +1,4 @@
-// Release radar: 🔔 Notify toggle, dismiss the "Arrived" banner, jump to a tile's card on /coming.
+// Release radar: Notify toggle, dismiss the "Arrived" banner, jump to a tile's card on /coming.
 (() => {
   const H = { "x-requested-with": "fetch" };
   const post = (u) => fetch(u, { method: "POST", headers: H }).then((r) => {
@@ -11,7 +11,7 @@
       n.disabled = true;
       const j = await post(`/radar/notify/${encodeURIComponent(n.dataset.radarNotify)}`).catch(() => ({}));
       n.disabled = false;
-      if (j.ok) { n.classList.toggle("on", j.on); n.textContent = j.on ? "🔔 Notifying" : "🔔 Notify me"; }
+      if (j.ok) { n.classList.toggle("on", j.on); n.lastChild.nodeValue = j.on ? "Notifying" : "Notify me"; }
       return;
     }
     const d = e.target.closest("[data-radar-dismiss]");

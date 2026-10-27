@@ -306,9 +306,8 @@ async def books_page(req: Request):
     from discover import app as A                 # lazy: app imports the features while it is loading
     fb = feedback()
     books = [{**b, "wanted": fb.get(b["id"]) == "want"} for b in picks() if fb.get(b["id"]) != "dislike"]
-    return A.tpl.TemplateResponse(req, "features/books.html", {
-        "tab": "books", "cards": [], "q": req.query_params, "status": A._status(), "wanted_n": len(store.wants()),
-        "books": books, "book_wants": wants(), "info": store.meta_get("books:info") or {}})
+    return A.render_page(req, "books", [], template="features/books.html", books=books, book_wants=wants(),
+                         info=store.meta_get("books:info") or {})
 
 
 async def _send(bid):
@@ -368,7 +367,7 @@ async def books_act(req: Request, action: str, bid: str, bg: BackgroundTasks):
     return JSONResponse({"ok": True, "wants": len(wants())})
 
 
-fx.TABS.append(("/books", "Books", "📚"))
+fx.TABS.append(("/books", "Books", "book"))
 fx.CSS.append("/static/books.css?v=2")
 fx.JS.append("/static/books.js?v=1")
 fx.POST_REFRESH.append(post_refresh)

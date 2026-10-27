@@ -101,7 +101,7 @@ class _Label(str):
         return str(self) + (f' <i class="badge">{n}</i>' if n else "")
 
 
-fx.TABS.append(("/new", _Label("New"), "🔔"))
+fx.TABS.append(("/new", _Label("New"), "bell"))
 if CSS not in fx.CSS:
     fx.CSS.append(CSS)
 
@@ -253,9 +253,7 @@ async def new_page(req: Request):
     picks = [{"key": w["key"], "score": 0, "because": [],
               "why": (f"New from {w['who']} · {nice(w['date'], today)}" if w["date"] <= t
                       else f"Coming {nice(w['date'], today)} · from {w['who']}")} for w in data.get("people", [])]
-    return app.tpl.TemplateResponse(req, "features/new.html", {
-        "tab": "new", "cards": app.cards_for(picks), "seasons": seasons, "status": app._status(),
-        "q": req.query_params, "wanted_n": len(store.wants())})
+    return app.render_page(req, "new", app.cards_for(picks), template="features/new.html", seasons=seasons)
 
 
 async def get_season(http, tmdb_id, season, tvdb=None):

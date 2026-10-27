@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 from discover import config
 from discover import features as fx
 
-SIZES = {"w92", "w154", "w185", "w342", "w500", "w780", "original"}
+SIZES = {"w92", "w154", "w185", "w300", "w342", "w500", "w780", "w1280", "original"}
 NAME = re.compile(r"^[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp|svg)$")   # TMDB file names only → no path tricks
 ROOT = config.DATA / "img"
 _client = None

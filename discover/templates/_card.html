@@ -1,11 +1,11 @@
 <article class="card{{ ' wanted' if c.wanted }}" data-key="{{ c.key }}">
-  <a class="poster" href="https://www.themoviedb.org/{{ c.kind }}/{{ c.tmdb }}" target="_blank" rel="noopener">
-    {% if c.poster %}<img loading="lazy" src="/img/w342{{ c.poster }}" alt="">{% else %}<div class="noposter">{{ c.title }}</div>{% endif %}
-    {% if c.rating %}<span class="rate">★ {{ '%.1f' % c.rating }}</span>{% endif %}
-    {% if c.wanted %}<span class="flag">Wanted</span>{% endif %}
+  <a class="poster" href="https://www.themoviedb.org/{{ c.kind }}/{{ c.tmdb }}" target="_blank" rel="noopener" aria-label="{{ c.title }} on TMDB">
+    {% if c.poster %}<img loading="lazy" decoding="async" src="/img/w342{{ c.poster }}" alt="">{% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
+    {% if c.rating %}<span class="rate">{{ icon('star') }}{{ '%.1f' % c.rating }}</span>{% endif %}
+    {% if c.wanted %}<span class="flag" title="Wanted">{{ icon('check') }}</span>{% endif %}
   </a>
   <div class="body">
-    <h3>{{ c.title }}</h3>
+    <h3 title="{{ c.title }}">{{ c.title }}</h3>
     <div class="meta">{{ c.year }}{% if c.seasons %} · {{ c.seasons }} season{{ 's' if c.seasons != 1 }}{% endif %}{% if c.genres %} · {{ c.genres[:2] | join(', ') }}{% endif %}</div>
     {% if c.why %}<p class="why">{{ c.why }}</p>
     {% elif c.because %}<p class="why">Because you watched {{ c.because[:2] | join(' and ') }}.</p>{% endif %}
@@ -13,8 +13,8 @@
     <div class="acts">
       {% include "_want.html" %}
       {% for t in fx.CARD_ACTIONS %}{% include t %}{% endfor %}
-      <button class="btn icon{{ ' on' if c.fb == 'like' }}" data-act="like" title="More like this">👍</button>
-      <button class="btn icon" data-act="dislike" title="Not interested">✕</button>
+      <button class="btn icon{{ ' on' if c.fb == 'like' }}" data-act="like" title="More like this" aria-label="More like this">{{ icon('thumb') }}</button>
+      <button class="btn icon" data-act="dislike" title="Not interested" aria-label="Not interested">{{ icon('x') }}</button>
     </div>
   </div>
 </article>

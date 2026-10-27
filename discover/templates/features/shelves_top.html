@@ -1,16 +1,8 @@
-{# Themed shelves: light poster rows (no buttons) — a tap opens the full shelf scrolled to that title. Hidden while filtering. #}
+{# Themed shelves: light poster rails (no buttons) — a tap opens the full shelf scrolled to that title. Hidden while filtering. #}
+{% from "_ui.html" import sec_head, tile %}
 {% if not q %}{% for s in fx.shelves.view(tab) %}
-<section class="sh" aria-label="{{ s.title }}">
-  <header class="sh-h">
-    <div><h2>{{ s.title }}</h2>{% if s.subtitle %}<small>{{ s.subtitle }}</small>{% endif %}</div>
-    <a class="sh-all" href="/shelf/{{ s.kind }}/{{ s.id }}">See all ›</a>
-  </header>
-  <div class="sh-row">
-    {% for c in s.tiles %}<a class="sh-tile" href="/shelf/{{ s.kind }}/{{ s.id }}#c-{{ c.key }}" title="{{ c.title }}">
-      {% if c.poster %}<img loading="lazy" src="/img/w185{{ c.poster }}" alt="">{% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
-      {% if c.rating %}<span class="rate">★ {{ '%.1f' % c.rating }}</span>{% endif %}
-      <b>{{ c.title }}</b><small>{{ c.year }}</small>
-    </a>{% endfor %}
-  </div>
+<section class="sec" aria-label="{{ s.title }}">
+  {{ sec_head(s.title, s.subtitle, "/shelf/" ~ s.kind ~ "/" ~ s.id) }}
+  <div class="rail">{% for c in s.tiles %}{{ tile(c, "/shelf/" ~ s.kind ~ "/" ~ s.id ~ "#c-" ~ c.key, c.year) }}{% endfor %}</div>
 </section>
 {% endfor %}{% endif %}

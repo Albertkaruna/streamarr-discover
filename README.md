@@ -1,7 +1,7 @@
 # Discover · by Streamarr
 
-Personal movie & TV recommendations for the Streamarr home server — learned from what you actually watch,
-with one-tap **+ Want** that flows straight into Sonarr/Radarr. Songs and books come next.
+Personal movie, TV, music and book recommendations for the Streamarr home server — learned from what you actually
+watch, with one-tap **+ Want** that flows straight into Sonarr/Radarr (books → Chaptarr).
 
 ## How it decides
 
@@ -31,12 +31,19 @@ Excluded: anything you own, already asked for, wanted, or ✕'d; unreleased; < 3
 
 | Where | What |
 |---|---|
-| Movies / Shows | genre, mood (Gemini-tagged), language, Short / Binge-able / New-to-me / Hidden-gems chips · Tonight's pick · "?" explain sheet · ▶ trailer · More like this · download status + size |
+| Movies / Shows | Tonight's pick hero · themed shelves ("Tamil thrillers", "Because you loved X"…) from the whole candidate pool · Hidden gems rail · genre / mood (Gemini-tagged) / language / Short / Binge-able / New-to-me chips · "?" explain sheet · ▶ trailer · More like this · download status + size |
 | + Want sheet | seasons (shows) · **Tamil audio if available** · 720p / 1080p → one of four Sonarr/Radarr lists (plain, Tamil, 720p, Tamil 720p) |
+| Search | everything that exists (TMDB, Open Library, iTunes), marked In library / Downloading / Wanted |
+| Swipe | one card at a time: 👍 / ✕ / + Want / Seen it, library titles mixed in, "why not?" behind ✕ |
+| Coming | release radar: next ~4 months + in theatres not yet digital · 🔔 Notify me (track without downloading) · arrival alerts |
 | New | new seasons of your shows (one-tap "Get season") · fresh work from directors/creators/actors you love |
-| Books | Open Library + Gemini + "the book it was based on" · cross-media "Because you loved X…" (book, album, documentary) |
-| Music | similar artists/songs (ListenBrainz, Deezer, iTunes previews) from Jellyfin music + Tunarr playlists · "+ Tunarr" |
+| People | `/person/{id}`: bio + Directed / Music / Acted filmography with "You have X of Y" |
+| Books | Open Library + Gemini + "the book it was based on" (+ Hardcover shelves) → Chaptarr as ebook, audiobook or both · cross-media "Because you loved X…" (book, album, documentary) |
+| Music | similar artists/songs (ListenBrainz, Deezer, Last.fm, iTunes previews) from Jellyfin music + Tunarr playlists · "+ Tunarr" |
 | Rate · Report · Settings | rate your library (Loved/OK/Didn't like) · want-rate + self-tuning weights · language mix (Off/Some/Lots) |
+
+Posters are served through a local cache (`/img/…`, fetched once from TMDB); CSS is one content-hashed bundle and
+JS urls are content-hashed, so the phone caches them until they change.
 
 Sonarr/Radarr setup for the Want options (idempotent, prints what it does): `python -m discover.features.want_arr [--apply]`
 — run it inside the container so the live database learns which lists exist.
@@ -62,6 +69,10 @@ the weekly Streamarr backup. Refreshes ~2 min after start if stale, then daily a
 | `TRAKT_CLIENT_ID` | Trakt app client id — optional, adds "related" |
 | `GEMINI_KEY` | Google AI Studio key — optional, adds embeddings + re-rank + reasons |
 | `SONARR_KEY`, `RADARR_KEY` | to skip what's already tracked and trigger instant list syncs |
+| `CHAPTARR_URL`, `CHAPTARR_KEY` | book wants → Chaptarr |
+| `HARDCOVER_TOKEN` | optional, adds your Hardcover shelves to book taste |
+| `LASTFM_KEY` | optional, adds Last.fm similar artists |
+| `TUNARR_STATE`, `TUNARR_PUBLIC_URL` | Tunarr playlists for music taste + "+ Tunarr" |
 | `GEMINI_MODEL` / `GEMINI_FALLBACK` / `GEMINI_EMBED_MODEL` | default `gemini-3.5-flash-lite` / `gemini-3.8-flash` (3.8 Flash is rate-limited on the free tier) / `gemini-embedding-001` |
 
 Gemini free tier: ~2 generate calls + a few embedding batches per day (embeddings are cached forever).
@@ -69,14 +80,10 @@ Gemini free tier: ~2 generate calls + a few embedding batches per day (embedding
 ## Develop
 
 ```
-python -m tests          # engine tests, no extra packages
+python3 -m tests         # needs requirements.txt installed; the Docker build runs them too
 docker compose -f ~/servarr/docker-compose.yml up -d --build discover
 ```
 
 Code: `engine.py` (taste + ranking, pure), `pipeline.py` (one refresh), `clients.py` (APIs + cache),
-`ai.py` (Gemini), `app.py` (web), `store.py` (SQLite).
-
-## Next
-
-Songs (ListenBrainz/Last.fm similar artists + Tunarr playlists) · books (Hardcover) · cross-media picks
-("loved *Dark* → this book, this soundtrack") · "More like this" from any title · language filters.
+`ai.py` (Gemini), `app.py` (web), `store.py` (SQLite). Features: one module each in `discover/features/`;
+the hook list is at the top of `features/__init__.py`. Icons: SVG sprite in `templates/_icons.html`.

@@ -150,7 +150,7 @@ def seen_filter(cards, q):
 
 fx.REFRESH_HOOKS.append(refresh_hook)
 fx.FILTERS.append(seen_filter)
-fx.NAV.insert(next((i + 1 for i, (p, _) in enumerate(fx.NAV) if p == "/search"), 0), ("/swipe", "🔥 Swipe"))
+fx.NAV.insert(next((i + 1 for i, (p, _) in enumerate(fx.NAV) if p == "/search"), 0), ("/swipe", "Swipe"))
 fx.PAGE_TOP.insert(0, "features/swipe_top.html")
 fx.CSS.append("/static/swipe.css?v=1")
 fx.JS.append("/static/swipe.js?v=1")

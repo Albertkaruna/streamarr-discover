@@ -4,23 +4,38 @@ const post = (url) => fetch(url, { method: "POST", headers: { "x-requested-with"
   return r;
 });
 
+async function onAct(b) {
+  const card = b.closest(".card, .hidden-card");
+  const key = card.dataset.key, act = b.dataset.act;
+  b.disabled = true;
+  await post(`/act/${act}/${encodeURIComponent(key)}`);
+  if (act === "dislike") {
+    card.outerHTML = `<div class="hidden-card" data-key="${key}"><span>Hidden — won't suggest this again</span>
+      <button class="btn sm" data-act="undo">Undo</button></div>`;
+  } else if (act === "unwant" && location.pathname === "/wanted") {
+    card.remove();
+  } else {
+    card.outerHTML = await fetch(`/card/${encodeURIComponent(key)}`).then((r) => r.text());
+  }
+}
+
+// Tonight's pick: one-tap want, the hero stays a hero (own attribute, so onAct doesn't swap it for a card).
+async function onTonight(b) {
+  b.disabled = true;
+  const r = await post(`/act/want/${encodeURIComponent(b.closest(".tn-hero").dataset.key)}`);
+  if (r.ok) { b.className = "btn on"; b.lastChild.nodeValue = "Wanted"; }
+  else b.disabled = false;
+}
+
 document.addEventListener("click", async (e) => {
-  const b = e.target.closest("[data-act]");
-  if (b) {
-    const card = b.closest(".card, .hidden-card");
-    const key = card.dataset.key, act = b.dataset.act;
-    b.disabled = true;
-    await post(`/act/${act}/${encodeURIComponent(key)}`);
-    if (act === "dislike") {
-      card.outerHTML = `<div class="hidden-card" data-key="${key}">Hidden — won't suggest this again
-        <button class="btn" data-act="undo">Undo</button></div>`;
-    } else if (act === "unwant" && location.pathname === "/wanted") {
-      card.remove();
-    } else {
-      const html = await fetch(`/card/${encodeURIComponent(key)}`).then((r) => r.text());
-      card.outerHTML = html;
-    }
-    return;
+  const act = e.target.closest("[data-act]");
+  if (act) return onAct(act);
+  const tn = e.target.closest("[data-tn]");
+  if (tn) return onTonight(tn);
+  const rail = e.target.closest("[data-rail]");
+  if (rail) {
+    const row = rail.closest(".sec").querySelector(".rail");
+    return row.scrollBy({ left: Number(rail.dataset.rail) * row.clientWidth * 0.85, behavior: "smooth" });
   }
   if (e.target.closest("[data-refresh]")) {
     await post("/refresh");

@@ -1,28 +1,16 @@
 {% set B = fx.browse.ui(tab, q, cards) %}
 {% if B and B.total %}
-<div class="bz" aria-label="Filters">
-  <div class="bz-row">
-    <a class="bz-chip{{ ' on' if not B.active }}" href="{{ B.all_href }}">All <i>{{ B.total }}</i></a>
-    {% for ch in B.moments %}<a class="bz-chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
-    <span class="bz-sep"></span>
-    {% for ch in B.moods %}<a class="bz-chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
+<div class="filters" aria-label="Filters">
+  <div class="chips">
+    <a class="chip{{ ' on' if not B.active }}" href="{{ B.all_href }}">All <i>{{ B.total }}</i></a>
+    {% for ch in B.moments %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
+    <span class="chip-sep"></span>
+    {% for ch in B.moods %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
   </div>
-  <div class="bz-row">
-    {% for ch in B.langs %}<a class="bz-chip lang{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
-    <span class="bz-sep"></span>
-    {% for ch in B.genres %}<a class="bz-chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
+  <div class="chips">
+    {% for ch in B.langs %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
+    <span class="chip-sep"></span>
+    {% for ch in B.genres %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
   </div>
 </div>
-{% if B.gems %}
-<section class="bz-gems">
-  <h2>💎 Hidden gems <small>great, little-known, your taste</small></h2>
-  <div class="bz-strip">
-    {% for c in B.gems %}<a class="bz-gem" href="#c-{{ c.key }}" title="{{ c.title }}">
-      {% if c.poster %}<img loading="lazy" src="/img/w185{{ c.poster }}" alt="">{% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
-      <span class="rate">★ {{ '%.1f' % c.rating }}</span>
-      <b>{{ c.title }}</b><small>{{ c.year }} · {{ c.votes }} votes</small>
-    </a>{% endfor %}
-  </div>
-</section>
-{% endif %}
 {% endif %}

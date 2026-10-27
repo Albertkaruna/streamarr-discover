@@ -1,8 +1,8 @@
 {% set ol = "https://openlibrary.org/works/" ~ b.id %}
 <article class="card bk-card{{ ' wanted' if b.wanted }}" data-bid="{{ b.id }}" data-book='{{ {"title": b.title, "author": b.author, "year": b.year, "cover": b.cover} | tojson }}'>
   <a class="poster" href="{{ ol }}" target="_blank" rel="noopener">
-    {% if b.cover %}<img loading="lazy" src="https://covers.openlibrary.org/b/id/{{ b.cover }}-M.jpg" alt="">{% else %}<div class="noposter">{{ b.title }}</div>{% endif %}
-    {% if b.rating %}<span class="rate">★ {{ '%.1f' % b.rating }}</span>{% endif %}
+    {% if b.cover %}<img loading="lazy" decoding="async" src="https://covers.openlibrary.org/b/id/{{ b.cover }}-M.jpg" alt="">{% else %}<div class="noposter">{{ b.title }}</div>{% endif %}
+    {% if b.rating %}<span class="rate">{{ icon('star') }}{{ '%.1f' % b.rating }}</span>{% endif %}
     {% if b.tag %}<span class="bk-tag">{{ b.tag }}</span>{% endif %}
   </a>
   <div class="body">
@@ -14,7 +14,7 @@
     <div class="acts">
       {% if b.wanted %}<button class="btn on" data-bact="unwant" title="Remove from wanted">✓ Wanted</button>
       {% else %}{% include "features/books_want.html" %}{% endif %}
-      <button class="btn icon" data-bact="dislike" title="Not interested">✕</button>
+      <button class="btn icon" data-bact="dislike" title="Not interested" aria-label="Not interested">{{ icon('x') }}</button>
     </div>
   </div>
 </article>

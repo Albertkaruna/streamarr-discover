@@ -1,6 +1,6 @@
 {% set d = c.dl or {} %}<div class="wst" data-wst="{{ c.key }}">
   <span class="wbadge {{ d.state }}"{% if d.state in ('dl', 'queued') %} title="Downloads run at full speed 22:00–09:00"{% endif %}>{{ d.label }}</span>
   <span class="wsize">{{ d.size }}</span>
-  {% if c.wanted %}<button class="link wedit" data-want="{{ c.key }}" title="Seasons / audio / quality">⚙ Options</button>{% endif %}
-  <a class="wlike" href="/like/{{ c.key }}">More like this ›</a>
+  {% if c.wanted %}<button class="link wedit" data-want="{{ c.key }}" title="Seasons / audio / quality">Options</button>{% endif %}
+  <a class="wlike" href="/like/{{ c.key }}">More like this</a>
 </div>

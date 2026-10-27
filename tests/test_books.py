@@ -189,7 +189,7 @@ def test_pages_render():
     c.cookies.set("discover", config.SESSION)
     r = c.get("/books")
     assert r.status_code == 200 and "The Martian" in r.text and "Goodreads" in r.text and "Beyond the screen" in r.text
-    assert "OST" in r.text and "/static/books.css" in r.text
+    assert "OST" in r.text and ".xm-row" in c.get("/assets/app.css").text
     r = c.post("/books/act/want/OL10W", headers={"x-requested-with": "fetch"})
     assert r.json() == {"ok": True, "wants": 1}
     assert "isn't connected" in c.get("/books").text or "Book wants go to" in c.get("/books").text

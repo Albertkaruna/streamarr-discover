@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS music_nope (key TEXT PRIMARY KEY, label TEXT, ts REAL
 """
 _ready = set()
 
-fx.TABS.append(("/music", "Music", "🎵"))
+fx.TABS.append(("/music", "Music", "music"))
 fx.CSS.append("/static/music.css?v=1")
 fx.JS.append("/static/music.js?v=1")
 
@@ -310,9 +310,8 @@ async def music_page(req: Request):
     for a in artists:
         a["examples"] = [{**e, **_links({"artist": a["name"], "title": e["title"]}, base)} for e in a.get("examples") or []]
     songs = [{**s, **_links(s, base)} for s in load("song") if not hidden(s, nope)]
-    return app.tpl.TemplateResponse(req, "features/music.html", {
-        "tab": "music", "cards": [], "status": app._status(), "q": req.query_params, "wanted_n": len(store.wants()),
-        "artists": artists, "songs": songs, "mstats": store.meta_get("music:stats") or {}, "hidden_n": len(nope)})
+    return app.render_page(req, "music", [], template="features/music.html", artists=artists, songs=songs,
+                           mstats=store.meta_get("music:stats") or {}, hidden_n=len(nope))
 
 
 @fx.router.post("/music/nope")

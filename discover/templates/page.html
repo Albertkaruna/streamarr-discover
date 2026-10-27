@@ -1,41 +1,52 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Discover · Streamarr</title><meta name="theme-color" content="#0b1020">
-<link rel="manifest" href="/manifest.json"><link rel="icon" href="/static/icon.svg"><link rel="apple-touch-icon" href="/static/icon.svg">
-<link rel="stylesheet" href="/static/style.css?v=3">
-{% for href in fx.CSS %}<link rel="stylesheet" href="{{ href }}">{% endfor %}</head>
+<title>{{ title ~ ' · ' if title }}Discover</title><meta name="theme-color" content="#0a0b0f"><meta name="color-scheme" content="dark">
+<link rel="manifest" href="/manifest.json"><link rel="icon" href="{{ asset('/static/icon.svg') }}"><link rel="apple-touch-icon" href="{{ asset('/static/icon.svg') }}">
+<link rel="stylesheet" href="{{ css_url() }}">
+<script defer src="{{ asset('/static/app.js') }}"></script>
+{% for src in fx.JS %}<script defer src="{{ asset(src) }}"></script>{% endfor %}</head>
 <body>
+{% include "_icons.html" %}
+{% set main_nav = {"/search": "search", "/swipe": "swipe", "/coming": "calendar"} %}   {# the rest go in the menu #}
 <header class="bar">
-  <a class="brand" href="/"><img src="/static/icon.svg" alt=""><span><b>Discover</b><small>by Streamarr</small></span></a>
-  {% set main = ("/search", "/swipe", "/coming") %}   {# the rest go in ☰ so the bar fits a phone #}
-  {% for path, label in fx.NAV if path in main %}<a class="item" href="{{ path }}">{{ label }}</a>{% endfor %}
-  <details class="more"><summary class="item" title="More">☰</summary><div class="more-menu">
-    {% for path, label in fx.NAV if path not in main %}<a href="{{ path }}">{{ label }}</a>{% endfor %}
-    <a href="/logout">Sign out</a></div></details>
+  <a class="brand" href="/" aria-label="Discover home"><img src="{{ asset('/static/icon.svg') }}" alt="" width="28" height="28"><b>Discover</b></a>
+  <nav class="tabs" aria-label="Sections">
+    <a href="/movies" class="{{ 'on' if tab == 'movies' }}">{{ icon('film') }}<span>Movies</span></a>
+    <a href="/shows" class="{{ 'on' if tab == 'shows' }}">{{ icon('tv') }}<span>Shows</span></a>
+    {% for path, label, ic in fx.TABS %}<a href="{{ path }}" class="{{ 'on' if tab == path.strip('/') }}">{{ icon(ic) }}<span>{{ label }}</span></a>{% endfor %}
+    <a href="/wanted" class="{{ 'on' if tab == 'wanted' }}">{{ icon('bookmark') }}<span>Wanted{% if wanted_n %} <i class="badge">{{ wanted_n }}</i>{% endif %}</span></a>
+  </nav>
+  <div class="bar-end">
+    {% for path, label in fx.NAV if path in main_nav %}<a class="item{{ ' on' if tab == path.strip('/') }}" href="{{ path }}" title="{{ label }}">{{ icon(main_nav[path]) }}<span>{{ label }}</span></a>{% endfor %}
+    <details class="more"><summary class="item" title="More" aria-label="More">{{ icon('menu') }}</summary><div class="more-menu">
+      {% for path, label in fx.NAV if path not in main_nav %}<a href="{{ path }}">{{ label }}</a>{% endfor %}
+      <hr><a href="/logout">Sign out</a></div></details>
+  </div>
 </header>
-<nav class="tabs">
-  <a href="/movies" class="{{ 'on' if tab == 'movies' }}">🎬<span>Movies</span></a>
-  <a href="/shows" class="{{ 'on' if tab == 'shows' }}">📺<span>Shows</span></a>
-  {% for path, label, icon in fx.TABS %}<a href="{{ path }}" class="{{ 'on' if tab == path.strip('/') }}">{{ icon }}<span>{{ label }}</span></a>{% endfor %}
-  <a href="/wanted" class="{{ 'on' if tab == 'wanted' }}">⭐<span>Wanted{% if wanted_n %} <i class="badge">{{ wanted_n }}</i>{% endif %}</span></a>
-</nav>
 <main>
   {% if status.setup %}<div class="note">Waiting for keys in <code>.env</code>: {{ status.setup | join(', ') }}.
     {% if 'TMDB_KEY' in status.setup or 'JELLYFIN_KEY' in status.setup %}Nothing can be recommended until TMDB + Jellyfin are set.{% else %}Works without them, just less smart.{% endif %}</div>{% endif %}
-  <div class="status" id="status" data-running="{{ 1 if status.running else 0 }}">
-    {% if status.running %}<span class="spin"></span> <span id="step">{{ status.step }}…</span>
-    {% else %}<span>{% if status.last %}Updated {{ status.last }}{% else %}Not refreshed yet{% endif %}</span>
-      {% if tab != 'wanted' %}<button class="link" data-refresh>↻ Refresh now</button>{% endif %}{% endif %}
-    {% if status.error %}<span class="err">Last refresh failed: {{ status.error }}</span>{% endif %}
+  <div class="page-head{{ ' slim' if not title }}">
+    <div>
+      {% if title %}<h1>{{ title }}</h1>{% endif %}
+      <p class="status" id="status" data-running="{{ 1 if status.running else 0 }}">
+        {% if status.running %}<span class="spin"></span> <span id="step">{{ status.step }}…</span>
+        {% elif status.last %}Updated {{ status.last }}{% else %}Not refreshed yet{% endif %}
+        {% if status.error %}<span class="err">· Last refresh failed: {{ status.error }}</span>{% endif %}
+      </p>
+    </div>
+    {% if title and tab != 'wanted' and not status.running %}<button class="btn ghost sm" data-refresh>{{ icon('refresh') }}<span>Refresh</span></button>{% endif %}
   </div>
-  {% if tab == 'wanted' %}<p class="hint">Tapped <b>+ Want</b> — Sonarr / Radarr download these in the night window. Removing one stops its download (files you already have stay).</p>{% endif %}
+  {% if tab == 'wanted' %}<p class="hint lead">Everything you tapped <b>+ Want</b> on. Sonarr / Radarr download these in the night window; removing one stops its download (files you already have stay).</p>{% endif %}
   {% if tab in ('movies', 'shows') %}{% for t in fx.PAGE_TOP %}{% include t %}{% endfor %}{% endif %}
   {% block content %}
+  {% if tab in ('movies', 'shows') %}
+  <header class="sec-h grid-h"><div><h2>All picks</h2><p>Ranked for you · {{ cards | length }} title{{ 's' if cards | length != 1 }}</p></div></header>
+  {% for t in fx.GRID_TOP %}{% include t %}{% endfor %}
+  {% endif %}
   {% if cards %}<section class="grid">{% for c in cards %}{% include "_card.html" %}{% endfor %}</section>
   {% elif tab == 'wanted' %}<p class="empty">Nothing wanted yet. Tap <b>+ Want</b> on a pick.</p>
   {% else %}<p class="empty">{% if q %}Nothing matches these filters.{% else %}No picks yet — they appear after the first refresh (a few minutes).{% endif %}</p>{% endif %}
   {% endblock %}
 </main>
-<script src="/static/app.js?v=2"></script>
-{% for src in fx.JS %}<script src="{{ src }}"></script>{% endfor %}
 </body></html>

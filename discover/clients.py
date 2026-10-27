@@ -114,7 +114,7 @@ def normalize(kind, d):
     return {
         "key": f"{kind}:{d['id']}", "kind": kind, "tmdb": d["id"],
         "title": d.get("title") or d.get("name") or "", "year": (date or "")[:4],
-        "overview": d.get("overview") or "", "poster": d.get("poster_path"),
+        "overview": d.get("overview") or "", "poster": d.get("poster_path"), "backdrop": d.get("backdrop_path"),
         "genres": [g["name"] for g in d.get("genres", [])], "keywords": [k["name"] for k in kw][:25],
         "people": list(dict.fromkeys(people)), "lang": d.get("original_language"),
         "rating": d.get("vote_average") or 0, "votes": d.get("vote_count") or 0,

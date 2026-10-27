@@ -194,5 +194,5 @@ def _render_checks(c):
     assert 'data-key="movie:980011"' in t and '<i class="badge">2</i>' in t
     _seed_picks()
     t = c.get("/movies").text
-    assert "tn-hero" in t and "/static/alerts.css" in t
+    assert "tn-hero" in t and "/assets/app.css" in t and ".al-row" in c.get("/assets/app.css").text
     assert "tn-hero" not in c.get("/shows").text

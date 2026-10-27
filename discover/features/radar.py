@@ -35,7 +35,7 @@ GENRES = {28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Cri
           10751: "Family", 14: "Fantasy", 36: "History", 27: "Horror", 10402: "Music", 9648: "Mystery",
           10749: "Romance", 878: "Science Fiction", 10770: "TV Movie", 53: "Thriller", 10752: "War", 37: "Western"}
 
-fx.NAV.append(("/coming", "📅 Coming"))
+fx.NAV.append(("/coming", "Coming"))
 fx.PAGE_TOP.append("features/radar_top.html")
 fx.CARD_SLOTS.append("features/radar_slot.html")
 fx.CSS.append("/static/radar.css?v=1")

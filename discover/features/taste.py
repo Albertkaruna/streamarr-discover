@@ -124,10 +124,8 @@ fx.JS.append("/static/taste.js?v=1")
 
 # ---------------- pages ----------------
 def _page(req, tab, name, **extra):
-    """Same context as app.render_page, but our own template (which extends page.html)."""
     from discover import app
-    return app.tpl.TemplateResponse(req, name, {"tab": tab, "cards": [], "status": app._status(), "q": req.query_params,
-                                                "wanted_n": len(store.wants()), **extra})
+    return app.render_page(req, tab, [], template=name, **extra)
 
 
 @fx.router.get("/rate", response_class=HTMLResponse)

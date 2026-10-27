@@ -1,0 +1,25 @@
+{# Shared building blocks for the Movies/Shows sections. {% from "_ui.html" import sec_head, tile %} #}
+
+{% macro sec_head(title, sub="", href="", more="See all", rail=True) %}
+<header class="sec-h">
+  <div><h2>{{ title }}</h2>{% if sub %}<p>{{ sub }}</p>{% endif %}</div>
+  <div class="sec-end">
+    {% if href %}<a class="sec-more" href="{{ href }}">{{ more }}{{ icon('chevron') }}</a>{% endif %}
+    {% if rail %}<span class="rail-nav"><button data-rail="-1" aria-label="Scroll left">{{ icon('chevron-l') }}</button><button data-rail="1" aria-label="Scroll right">{{ icon('chevron') }}</button></span>{% endif %}
+  </div>
+</header>
+{% endmacro %}
+
+{# Poster tile for horizontal rails; w185 on 1x screens, w342 on retina (both are pre-cached by img.warm) #}
+{% macro tile(c, href, sub="", badge="", badge_on=False) %}
+<a class="tile" href="{{ href }}" title="{{ c.title }}">
+  <span class="tile-img">
+    {% if c.poster %}<img loading="lazy" decoding="async" src="/img/w185{{ c.poster }}" srcset="/img/w185{{ c.poster }} 185w, /img/w342{{ c.poster }} 342w" sizes="(min-width: 900px) 144px, 116px" alt="">
+    {% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
+    {% if c.rating and not badge %}<span class="rate">{{ icon('star') }}{{ '%.1f' % c.rating }}</span>{% endif %}
+    {% if badge %}<span class="tile-badge{{ ' on' if badge_on }}">{{ badge }}</span>{% endif %}
+    {% if c.wanted %}<span class="flag" title="Wanted">{{ icon('check') }}</span>{% endif %}
+  </span>
+  <b>{{ c.title }}</b>{% if sub %}<small>{{ sub }}</small>{% endif %}
+</a>
+{% endmacro %}

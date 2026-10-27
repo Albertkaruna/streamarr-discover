@@ -66,7 +66,7 @@ def test_routes_deck_actions_undo():
     from fastapi.testclient import TestClient
 
     from discover import app, features as fx
-    assert ("/swipe", "🔥 Swipe") in fx.NAV
+    assert ("/swipe", "Swipe") in fx.NAV
     paths = [p for p, _ in fx.NAV]
     if "/search" in paths:
         assert paths.index("/swipe") == paths.index("/search") + 1
@@ -90,7 +90,7 @@ def test_routes_deck_actions_undo():
 
         r = c.get("/swipe")
         assert r.status_code == 200 and 'id="sw-data"' in r.text and "Your ✕ reasons" in r.text
-        assert "Quick-rate picks" in c.get("/movies").text
+        assert "Quick-rate your picks" in c.get("/movies").text
         t0 = c.post("/swipe/act/like/movie:992100").json()["today"]
         assert store.feedback().get("movie:992100") == "like"
         c.post("/act/want/movie:992101")                           # client does the real want, then logs it

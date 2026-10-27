@@ -124,8 +124,8 @@ def test_page_top_and_shelf_page_render():
         c.cookies.set("discover", config.SESSION)
         s = shelves.load("movie")[0]
         t = c.get("/movies").text
-        assert 'class="sh-tile"' in t and f'/shelf/movie/{s["id"]}#c-{s["items"][0]["key"]}' in t
-        assert 'class="sh-tile"' not in c.get("/movies?genre=Drama").text      # hidden while filtering
+        assert 'class="tile"' in t and f'/shelf/movie/{s["id"]}#c-{s["items"][0]["key"]}' in t
+        assert 'class="tile"' not in c.get("/movies?genre=Drama").text      # hidden while filtering
         page = c.get(f"/shelf/movie/{s['id']}").text
         assert page.count('class="card') == len(s["items"]) and f'data-key="{s["items"][0]["key"]}"' in page
         assert c.get("/shelf/movie/nope").status_code == 404

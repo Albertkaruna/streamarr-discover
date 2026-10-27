@@ -67,7 +67,7 @@ async def runtimes(ctx):
 
 
 fx.POST_REFRESH.append(runtimes)
-fx.PAGE_TOP.append("features/tonight_top.html")
+fx.PAGE_TOP.insert(0, "features/tonight_top.html")    # the hero leads the page
 if CSS not in fx.CSS:
     fx.CSS.append(CSS)
 

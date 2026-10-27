@@ -1,0 +1,7 @@
+{% from "_ui.html" import sec_head, tile %}
+{% if not q %}{% set gems = fx.browse.gems(cards) %}{% if gems %}
+<section class="sec" aria-label="Hidden gems">
+  {{ sec_head("Hidden gems", "Great, little-known, your taste", "?pick=gems") }}
+  <div class="rail">{% for c in gems %}{{ tile(c, "#c-" ~ c.key, c.year ~ " · " ~ c.votes ~ " votes") }}{% endfor %}</div>
+</section>
+{% endif %}{% endif %}

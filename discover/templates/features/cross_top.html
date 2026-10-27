@@ -1,4 +1,5 @@
-{% if tab == 'movies' and fx.crossmedia is defined %}{% set rows = fx.crossmedia.rows() %}{% if rows %}
-<details class="xm-top"><summary>📚🎵 Beyond the screen — books, music &amp; docs for {{ rows | length }} titles you love</summary>
-  {% include "features/cross_rows.html" %}<a class="xm-all" href="/books">More on the Books tab →</a>
+{% if tab == 'movies' and not q and fx.crossmedia is defined %}{% set rows = fx.crossmedia.rows() %}{% if rows %}
+<details class="xm-top">
+  <summary><span><b>Beyond the screen</b><small>Books, music &amp; documentaries for {{ rows | length }} titles you love</small></span>{{ icon('chevron', 'xm-chev') }}</summary>
+  {% include "features/cross_rows.html" %}<a class="xm-all" href="/books">More on the Books tab{{ icon('chevron') }}</a>
 </details>{% endif %}{% endif %}

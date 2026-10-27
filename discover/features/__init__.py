@@ -5,13 +5,15 @@
     fx.REFRESH_HOOKS.append(async fn(ctx))   # per kind, after ranking, before picks are saved; may edit ctx["ranked"]
     fx.POST_REFRESH.append(async fn(ctx))    # once after both kinds; ctx has http, items (all hydrated), seeds_w
     fx.FILTERS.append(fn(cards, query) -> cards)        # Movies/Shows page filtering (query = request.query_params)
-    fx.TABS.append(("/path", "Label", "emoji"))          # extra main tab (keep these few — phone bottom bar)
-    fx.NAV.append(("/path", "Label"))                    # small link in the top bar (settings-like pages)
+    fx.TABS.append(("/path", "Label", "icon"))           # extra main tab (keep these few — phone bottom bar);
+                                                         # icon = a symbol id in templates/_icons.html
+    fx.NAV.append(("/path", "Label"))                    # top-bar link (settings-like pages go in its menu)
     fx.SEED_HOOKS.append(fn(seeds_w, info))              # adjust taste weights {key: w} before candidates are
                                                          # gathered; info: lib (Jellyfin rows), fb, owned, jf_keys
     fx.CARD_SLOTS.append("features/x_slot.html")         # included inside each card body (variable: c)
     fx.CARD_ACTIONS.append("features/x_act.html")        # included in each card's button row (variable: c)
-    fx.PAGE_TOP.append("features/x_top.html")            # included above the grid on Movies/Shows (tab, cards, q)
+    fx.PAGE_TOP.append("features/x_top.html")            # sections at the top of Movies/Shows (tab, cards, q)
+    fx.GRID_TOP.append("features/x_grid.html")           # right above the Movies/Shows grid, under its heading
     fx.CSS.append("/static/x.css"); fx.JS.append("/static/x.js")
     fx.CARD_DATA.append(fn(cards) -> None)               # enrich card dicts in place before render
 
@@ -23,7 +25,7 @@ import pkgutil
 from fastapi import APIRouter
 
 ROUTERS, REFRESH_HOOKS, POST_REFRESH, FILTERS, SEED_HOOKS, NAV = [], [], [], [], [], []
-TABS, CARD_SLOTS, CARD_ACTIONS, PAGE_TOP, CSS, JS, CARD_DATA = [], [], [], [], [], [], []
+TABS, CARD_SLOTS, CARD_ACTIONS, PAGE_TOP, GRID_TOP, CSS, JS, CARD_DATA = [], [], [], [], [], [], [], []
 router = APIRouter()
 ROUTERS.append(router)
 _loaded = False

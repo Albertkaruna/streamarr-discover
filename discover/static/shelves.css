@@ -1,30 +1,6 @@
-/* Themed shelves: Netflix-style rows that scroll sideways (phones first), Streamarr indigo → cyan */
-.sh{margin:0 0 18px}
-.sh-h{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:0 0 8px}
-.sh-h h2{margin:0;font-size:16px;line-height:1.25}
-.sh-h small{display:block;font-size:12px;color:var(--mut);line-height:1.3}
-.sh-all{flex:none;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;color:var(--cy);
-  border:1px solid var(--line);background:rgba(99,102,241,.08)}
-.sh-all:hover{border-color:rgba(103,232,249,.4)}
-.sh-row{display:flex;gap:10px;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scroll-snap-type:x proximity;
-  scroll-padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.sh-row::-webkit-scrollbar{display:none}
-.sh-tile{position:relative;flex:none;width:108px;scroll-snap-align:start;color:var(--fg)}
-.sh-tile img,.sh-tile .noposter{display:grid;width:108px;aspect-ratio:2/3;object-fit:cover;border-radius:10px;
-  background:#111733;border:1px solid var(--line);font-size:12px}
-.sh-tile:hover img,.sh-tile:focus-visible img{border-color:rgba(103,232,249,.5)}
-.sh-tile b{display:block;font-size:12px;line-height:1.25;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sh-tile small{display:block;font-size:11px;color:var(--mut)}
-.sh-tile .rate{top:6px;left:6px;font-size:11px}
-
-.sh-page{margin:0 0 12px}
-.sh-page h2{margin:6px 0 2px;font-size:20px;background:linear-gradient(90deg,#a5b4fc,#67e8f9);
-  -webkit-background-clip:text;background-clip:text;color:transparent}
+/* Full shelf page (/shelf/…). The Movies/Shows shelf rails use .rail/.tile from style.css */
+.sh-page{margin:0 0 24px}
+.sh-page h2{margin:6px 0 2px;font-size:26px;font-weight:700;letter-spacing:-.02em}
 .sh-page .hint{margin:0}
-.sh-back{font-size:13px;font-weight:600;color:var(--mut)}
+.sh-back{color:var(--mut);font-size:13px;font-weight:600}
 .sh-back:hover{color:var(--fg)}
-.card{scroll-margin-top:120px}
-.card:target{border-color:var(--cy);box-shadow:0 0 0 2px rgba(34,211,238,.45),0 8px 24px rgba(0,0,0,.3)}
-
-@media (min-width:900px){.sh-tile,.sh-tile img,.sh-tile .noposter{width:128px}}
-@media (max-width:640px){.sh-row{margin:0 -10px;padding:2px 10px 6px;scroll-padding:0 10px}}

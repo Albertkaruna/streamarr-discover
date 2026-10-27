@@ -27,9 +27,9 @@ NAMES = {**LANGS, "kn": "Kannada", "bn": "Bengali", "mr": "Marathi", "fr": "Fren
 LOTS_BOOST = 0.25          # added to a pick's position value (1 → 0) for "Lots": #30 of 60 → ~#15
 CAP_TOP, CAP_SHARE = 30, 0.6
 
-MOODS = {"light": "😂 Light & funny", "mind": "🌀 Mind-bending", "dark": "🌑 Dark & intense", "feelgood": "☀️ Feel-good",
-         "romantic": "💕 Romantic", "thrilling": "⚡ Thrilling", "slowburn": "🕯️ Slow-burn", "family": "👪 Family"}
-PICKS = {"short": "⏱ Short", "binge": "📺 Binge-able", "new": "🧭 New to me", "gems": "💎 Hidden gems"}
+MOODS = {"light": "Light & funny", "mind": "Mind-bending", "dark": "Dark & intense", "feelgood": "Feel-good",
+         "romantic": "Romantic", "thrilling": "Thrilling", "slowburn": "Slow-burn", "family": "Family"}
+PICKS = {"short": "Short", "binge": "Binge-able", "new": "New to me", "gems": "Hidden gems"}
 GROUPS = ("genre", "lang", "mood", "pick")
 
 # Fallback mood tags (no Gemini, or titles past the top 80): TMDB genres + keyword hints.
@@ -174,7 +174,7 @@ def browse_filter(cards, q):
 
 
 def ui(tab, q, cards):
-    """Chip rows + gems strip for page_top. Counts are faceted: each group counts against the other groups' filters."""
+    """Filter chip rows above the grid. Counts are faceted: each group counts against the other groups' filters."""
     from discover.app import KINDS, cards_for
     kind = KINDS.get(tab)
     if not kind:
@@ -203,10 +203,14 @@ def ui(tab, q, cards):
     pick_pool = facet("pick")
     pc = {p: sum(match(c, {"pick": [*sel["pick"], p]}, u) for c in pick_pool)
           for p in PICKS if not (p == "short" and kind == "tv") and not (p == "binge" and kind == "movie")}
-    gems = [] if "gems" in sel["pick"] else sorted([c for c in cards if is_gem(c)], key=lambda c: -c["score"])[:12]
     return {"active": any(sel.values()), "all_href": href(q), "total": len(base),
             "moments": chips("pick", pc, PICKS, list(pc)), "moods": chips("mood", mc, MOODS, list(MOODS)),
-            "langs": chips("lang", lc, NAMES), "genres": chips("genre", gc), "gems": gems}
+            "langs": chips("lang", lc, NAMES), "genres": chips("genre", gc)}
+
+
+def gems(cards):
+    """Hidden-gems rail: the best-scored great-but-little-known picks on this page."""
+    return sorted([c for c in cards if is_gem(c)], key=lambda c: -c["score"])[:12]
 
 
 # ---------------- refresh hooks ----------------
@@ -253,7 +257,8 @@ Return JSON: {{"<id>": ["<mood>", ...]}} with every id."""
 fx.REFRESH_HOOKS.append(lang_hook)       # first: drops "Off" so the mood call isn't spent on them
 fx.REFRESH_HOOKS.append(mood_hook)
 fx.FILTERS.append(browse_filter)
-fx.PAGE_TOP.append("features/browse_top.html")
+fx.PAGE_TOP.append("features/browse_gems.html")
+fx.GRID_TOP.append("features/browse_top.html")
 fx.NAV.append(("/settings", "Settings"))
 fx.CSS.append("/static/browse.css")
 fx.JS.append("/static/browse.js")
@@ -262,8 +267,7 @@ fx.JS.append("/static/browse.js")
 # ---------------- settings page ----------------
 def _render(req, tpl_name, **extra):
     from discover import app
-    return app.tpl.TemplateResponse(req, tpl_name, {"tab": "settings", "cards": [], "status": app._status(),
-                                                    "q": req.query_params, "wanted_n": len(store.wants()), **extra})
+    return app.render_page(req, "settings", [], template=tpl_name, **extra)
 
 
 @fx.router.get("/settings")

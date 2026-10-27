@@ -166,6 +166,6 @@ def test_flow_card_data_arrivals_and_page():
         assert cl.post("/radar/dismiss").json()["ok"] and cl.get("/api/radar").json()["arrived"] == []
         assert cl.post("/radar/notify/movie:999999").json() == {"ok": False}
         m = cl.get("/movies")
-        assert m.status_code == 200 and "coming to OTT" in m.text
+        assert m.status_code == 200 and "coming to streaming" in m.text
     finally:
         _restore(snap)

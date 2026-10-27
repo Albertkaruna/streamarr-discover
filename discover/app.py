@@ -3,6 +3,8 @@ import asyncio
 import base64
 import contextlib
 import datetime
+import functools
+import hashlib
 import hmac
 import logging
 import time
@@ -11,19 +13,47 @@ from pathlib import Path
 
 import httpx
 from fastapi import BackgroundTasks, FastAPI, Request
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from markupsafe import Markup
 
 from . import clients, config, features, pipeline, store
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("discover")
 HERE = Path(__file__).parent
-tpl = Jinja2Templates(HERE / "templates")
-tpl.env.globals["fx"] = features      # templates read slots/tabs/css/js from the registry
+STATIC = HERE / "static"
 KINDS = {"movies": "movie", "shows": "tv"}
+TITLES = {"movies": "Movies", "shows": "Shows", "wanted": "Wanted"}
+IMMUTABLE = "public, max-age=31536000, immutable"
 features.load()
+
+
+# ---------------- assets: one hashed CSS bundle, hashed JS urls → cached forever, re-fetched only when changed ----------------
+@functools.cache
+def _bundle():
+    """style.css + every feature stylesheet (registry order, de-duplicated) → (css, short hash)."""
+    files = dict.fromkeys(u.split("?")[0].removeprefix("/static/") for u in ["/static/style.css", *features.CSS])
+    css = "\n".join((STATIC / f).read_text() for f in files)
+    return css, hashlib.md5(css.encode()).hexdigest()[:10]
+
+
+@functools.cache
+def asset(url):
+    """/static/x.js(?v=…) → /static/x.js?v=<content hash>."""
+    path = url.split("?")[0]
+    return f"{path}?v={hashlib.md5((STATIC / path.removeprefix('/static/')).read_bytes()).hexdigest()[:10]}"
+
+
+def icon(name, cls=""):
+    """Inline SVG from the sprite in _icons.html."""
+    return Markup(f'<svg class="i {cls}" aria-hidden="true"><use href="#i-{name}"/></svg>')
+
+
+tpl = Jinja2Templates(HERE / "templates")
+tpl.env.globals.update(fx=features, asset=asset, icon=icon, css_url=lambda: f"/assets/app.css?v={_bundle()[1]}")
 
 
 async def scheduler():
@@ -46,7 +76,13 @@ async def lifespan(_):
 
 
 app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
-app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
+app.mount("/static", StaticFiles(directory=STATIC), name="static")
+app.add_middleware(GZipMiddleware, minimum_size=1024)      # pages are ~100 KB of repetitive HTML → ~12 KB
+
+
+@app.get("/assets/app.css")
+async def css_bundle():
+    return Response(_bundle()[0], media_type="text/css", headers={"Cache-Control": IMMUTABLE})
 
 
 @app.exception_handler(httpx.HTTPError)
@@ -55,15 +91,11 @@ async def upstream_down(req: Request, ex):
     log.warning("upstream error on %s: %s", req.url.path, ex)
     if req.headers.get("x-requested-with") == "fetch" or req.url.path.startswith("/api/"):
         return JSONResponse({"ok": False, "error": "A service didn't answer — try again in a moment."}, status_code=503)
-    return HTMLResponse("<!doctype html><meta name=viewport content='width=device-width,initial-scale=1'>"
-                        "<body style='background:#0b1020;color:#e8eaf6;font:16px system-ui;padding:40px 20px;text-align:center'>"
-                        "<h2>Couldn't reach TMDB / the server just now</h2><p>The connection dropped — usually the hotspot."
-                        "</p><p><a style='color:#67e8f9' href='javascript:location.reload()'>Try again</a> · "
-                        "<a style='color:#67e8f9' href='/'>Home</a></p></body>", status_code=503)
+    return tpl.TemplateResponse(req, "error.html", {}, status_code=503)
 
 
 # ---------------- auth: same idea as Tunarr — sign-in page + long-lived cookie ----------------
-PUBLIC = ("/login", "/static/", "/manifest.json", "/lists/")
+PUBLIC = ("/login", "/static/", "/assets/", "/manifest.json", "/lists/")
 
 
 def _basic_ok(req):
@@ -76,7 +108,10 @@ def _basic_ok(req):
 async def auth(req: Request, call_next):
     p = req.url.path
     if p.startswith(PUBLIC):
-        return await call_next(req)
+        r = await call_next(req)
+        if p.startswith("/static/") and "v" in req.query_params and r.status_code == 200:
+            r.headers["Cache-Control"] = IMMUTABLE        # url changes with the content (asset())
+        return r
     if hmac.compare_digest(req.cookies.get("discover", ""), config.SESSION):
         return await call_next(req)
     if p in ("/api/summary", "/api/tonight", "/api/radar") and _basic_ok(req):       # Homepage tiles only
@@ -114,7 +149,7 @@ async def logout():
 @app.get("/manifest.json")
 async def manifest():
     return {"name": "Discover", "short_name": "Discover", "start_url": "/", "display": "standalone",
-            "background_color": "#0b1020", "theme_color": "#0b1020",
+            "background_color": "#0a0b0f", "theme_color": "#0a0b0f",
             "icons": [{"src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml"}]}
 
 
@@ -131,8 +166,10 @@ def cards_for(picks):
 
 
 def render_page(req, tab, cards, template="page.html", **extra):
-    return tpl.TemplateResponse(req, template, {"tab": tab, "cards": cards, "status": _status(), "q": req.query_params,
-                                                   "wanted_n": len(store.wants()), **extra})
+    """Every full page: the shell (page.html) needs tab, status, query and the Wanted count."""
+    return tpl.TemplateResponse(req, template, {"tab": tab, "title": TITLES.get(tab), "cards": cards,
+                                                "status": _status(), "q": req.query_params,
+                                                "wanted_n": len(store.wants()), **extra})
 
 
 def _status():

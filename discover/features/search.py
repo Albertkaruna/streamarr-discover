@@ -130,6 +130,6 @@ async def search_page(req: Request):
     return app.render_page(req, "search", [], template=tpl, sq=q, skind=kind, kinds=KINDS, **res)
 
 
-fx.NAV.insert(0, ("/search", "🔍 Search"))
+fx.NAV.insert(0, ("/search", "Search"))
 fx.CSS.append("/static/search.css?v=1")
 fx.JS.append("/static/search.js?v=1")

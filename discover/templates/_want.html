@@ -1,3 +1,3 @@
 {# + Want opens the options sheet (want.js, capture phase); if that script fails, app.js still does one-tap /act/want #}
-{% if c.wanted %}<button class="btn on" data-act="unwant" title="Remove from wanted">✓ Wanted</button>
-{% else %}<button class="btn primary" data-want="{{ c.key }}" data-act="want">+ Want</button>{% endif %}
+{% if c.wanted %}<button class="btn on" data-act="unwant" title="Remove from wanted">{{ icon('check') }}Wanted</button>
+{% else %}<button class="btn primary" data-want="{{ c.key }}" data-act="want">{{ icon('plus') }}Want</button>{% endif %}
