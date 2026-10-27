@@ -3,11 +3,15 @@
 <div class="filters" aria-label="Filters">
   <div class="chips">
     <a class="chip{{ ' on' if not B.active }}" href="{{ B.all_href }}">All <i>{{ B.total }}</i></a>
+    {% for ch in B.types %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
+    {% if B.types %}<span class="chip-sep"></span>{% endif %}
     {% for ch in B.moments %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
     <span class="chip-sep"></span>
     {% for ch in B.moods %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
   </div>
   <div class="chips">
+    {% for ch in B.countries %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
+    {% if B.countries %}<span class="chip-sep"></span>{% endif %}
     {% for ch in B.langs %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}
     <span class="chip-sep"></span>
     {% for ch in B.genres %}<a class="chip{{ ' on' if ch.on }}" href="{{ ch.href }}">{{ ch.label }} <i>{{ ch.n }}</i></a>{% endfor %}

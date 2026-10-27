@@ -109,3 +109,13 @@ def test_normalize_runtime_countries():
     t = clients.normalize("tv", {**base, "episode_run_time": [], "last_episode_to_air": {"runtime": 42}})
     assert t["runtime"] == 42
     assert clients.normalize("tv", {"id": 2})["runtime"] is None
+
+
+def test_anime_and_country_filters():
+    tv = [card("a", kind="tv", lang="ja", genres=["Animation"]), card("b", kind="tv", keywords=["anime"]),
+          card("c", kind="tv", countries=["US"]), card("d", kind="tv", lang="ja", genres=["Drama"], countries=["JP"])]
+    assert [c["key"] for c in tv if browse.match(c, {"type": ["anime"]})] == ["a", "b"]
+    assert [c["key"] for c in tv if browse.match(c, {"type": ["live"]})] == ["c", "d"]
+    mv = [card("x", countries=["IN", "US"]), card("y", countries=["US", "IN"]), card("z")]
+    assert [c["key"] for c in mv if browse.match(c, {"country": ["IN"]})] == ["x"]          # primary country only
+    assert [c["key"] for c in mv if browse.match(c, {"country": ["US", "?"]})] == ["y", "z"]

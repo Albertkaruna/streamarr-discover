@@ -1,5 +1,5 @@
-"""Browse: filter chips on Movies/Shows (genre · language · mood · moment · hidden gems), a "Hidden gems" strip,
-and a Settings page for how much of each language you want.
+"""Browse: filter chips on Movies/Shows (shows/anime · country · genre · language · mood · moment · hidden gems),
+a "Hidden gems" strip, and a Settings page for how much of each language you want.
 
 Filters are plain links (?genre=Drama&genre=Comedy&lang=ta&mood=dark&pick=short). Within one group values are OR'd
 — picking Drama + Comedy means "either is fine tonight"; AND would leave almost nothing out of ~60 picks and TMDB's
@@ -30,7 +30,14 @@ CAP_TOP, CAP_SHARE = 30, 0.6
 MOODS = {"light": "Light & funny", "mind": "Mind-bending", "dark": "Dark & intense", "feelgood": "Feel-good",
          "romantic": "Romantic", "thrilling": "Thrilling", "slowburn": "Slow-burn", "family": "Family"}
 PICKS = {"short": "Short", "binge": "Binge-able", "new": "New to me", "gems": "Hidden gems"}
-GROUPS = ("genre", "lang", "mood", "pick")
+GROUPS = ("genre", "lang", "mood", "pick", "type", "country")
+TYPES = {"live": "Shows", "anime": "Anime"}                 # Shows tab only
+# Primary production country → chip label (place names, so they don't read like the language chips). India first;
+# codes not listed show as the code.
+COUNTRIES = {"IN": "India", "US": "USA", "GB": "UK", "JP": "Japan", "KR": "Korea", "CN": "China", "HK": "Hong Kong",
+             "TW": "Taiwan", "FR": "France", "DE": "Germany", "ES": "Spain", "IT": "Italy", "CA": "Canada",
+             "AU": "Australia", "NZ": "New Zealand", "TH": "Thailand", "BE": "Belgium", "IE": "Ireland", "DK": "Denmark",
+             "SE": "Sweden", "NO": "Norway", "MX": "Mexico", "BR": "Brazil", "TR": "Turkey", "?": "Unknown"}
 
 # Fallback mood tags (no Gemini, or titles past the top 80): TMDB genres + keyword hints.
 MOOD_GENRES = {"light": {"Comedy"}, "mind": {"Science Fiction", "Mystery", "Sci-Fi & Fantasy"},
@@ -92,6 +99,15 @@ def moods_of(c):
     return (c.get("extra") or {}).get("moods") or heuristic_moods(c)
 
 
+def is_anime(c):
+    return "anime" in (c.get("keywords") or []) or (c.get("lang") == "ja" and "Animation" in (c.get("genres") or []))
+
+
+def country(c):
+    """Primary production country (TMDB lists the main one first; co-producers after)."""
+    return (c.get("countries") or ["?"])[0]
+
+
 def is_gem(c):
     return (c.get("votes") or 0) < 2000 and (c.get("rating") or 0) >= 7
 
@@ -120,6 +136,10 @@ def match(c, sel, u=None):
     if sel.get("lang") and c.get("lang") not in sel["lang"]:
         return False
     if sel.get("mood") and not set(sel["mood"]) & set(moods_of(c)):
+        return False
+    if sel.get("type") and ("anime" if is_anime(c) else "live") not in sel["type"]:
+        return False
+    if sel.get("country") and country(c) not in sel["country"]:
         return False
     for p in sel.get("pick") or []:
         if p == "short" and not (c.get("kind") == "movie" and c.get("runtime") and c["runtime"] < 100):
@@ -200,12 +220,21 @@ def ui(tab, q, cards):
     for c in facet("mood"):
         for m in moods_of(c):
             mc[m] = mc.get(m, 0) + 1
+    tc, cc = {}, {}
+    for c in facet("type"):
+        t = "anime" if is_anime(c) else "live"
+        tc[t] = tc.get(t, 0) + 1
+    for c in facet("country"):
+        cc[country(c)] = cc.get(country(c), 0) + 1
+    c_order = ["IN"] * ("IN" in cc or "IN" in sel["country"]) + sorted((k for k in cc if k != "IN"), key=lambda k: (-cc[k], k))
     pick_pool = facet("pick")
     pc = {p: sum(match(c, {"pick": [*sel["pick"], p]}, u) for c in pick_pool)
           for p in PICKS if not (p == "short" and kind == "tv") and not (p == "binge" and kind == "movie")}
     return {"active": any(sel.values()), "all_href": href(q), "total": len(base),
             "moments": chips("pick", pc, PICKS, list(pc)), "moods": chips("mood", mc, MOODS, list(MOODS)),
-            "langs": chips("lang", lc, NAMES), "genres": chips("genre", gc)}
+            "langs": chips("lang", lc, NAMES), "genres": chips("genre", gc),
+            "types": chips("type", tc, TYPES, list(TYPES)) if kind == "tv" else [],
+            "countries": chips("country", cc, COUNTRIES, c_order)}
 
 
 def gems(cards):
