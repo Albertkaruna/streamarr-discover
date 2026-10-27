@@ -13,13 +13,29 @@
 {# Poster tile for horizontal rails; w185 on 1x screens, w342 on retina (both are pre-cached by img.warm) #}
 {% macro tile(c, href, sub="", badge="", badge_on=False) %}
 <a class="tile" href="{{ href }}" title="{{ c.title }}">
-  <span class="tile-img">
+  <span class="tile-img flipper"><span class="flip"><span class="face">
     {% if c.poster %}<img loading="lazy" decoding="async" src="/img/w185{{ c.poster }}" srcset="/img/w185{{ c.poster }} 185w, /img/w342{{ c.poster }} 342w" sizes="(min-width: 900px) 144px, 116px" alt="">
     {% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
     {% if c.rating and not badge %}<span class="rate">{{ icon('star') }}{{ '%.1f' % c.rating }}</span>{% endif %}
     {% if badge %}<span class="tile-badge{{ ' on' if badge_on }}">{{ badge }}</span>{% endif %}
     {% if c.wanted %}<span class="flag" title="Wanted">{{ icon('check') }}</span>{% endif %}
-  </span>
+  </span>{{ flip_back(c, compact=True) }}</span></span>
   <b>{{ c.title }}</b>{% if sub %}<small>{{ sub }}</small>{% endif %}
 </a>
+{% endmacro %}
+
+{# Back of a flipping poster (.flipper): summary + credits, shown on hover on wide screens — style.css "card flip".
+   compact = rail tiles (144px): runtime line + plot only. #}
+{% macro flip_back(c, compact=False) %}
+{% set makers = (c.people or []) | selectattr(0, 'in', ['director', 'creator']) | map(attribute=1) | unique | list %}
+{% set cast = (c.people or []) | selectattr(0, 'equalto', 'cast') | map(attribute=1) | list %}
+<span class="face back" aria-hidden="true">
+  <span class="back-meta">{% if c.runtime %}{{ '%dh %02dm' % (c.runtime // 60, c.runtime % 60) if c.runtime >= 60 else '%d min' % c.runtime }}{% endif %}{% if c.seasons %}{{ ' · ' if c.runtime }}{{ c.seasons }} season{{ 's' if c.seasons != 1 }}{% endif %}{% if c.lang %} · {{ c.lang | upper }}{% endif %}{% if c.votes and not compact %} · {{ '{:,}'.format(c.votes) }} votes{% endif %}</span>
+  {% if not compact %}
+  {% if makers %}<span class="back-who"><b>{{ 'Created by' if c.kind == 'tv' else 'Directed by' }}</b> {{ makers[:2] | join(', ') }}</span>{% endif %}
+  {% if cast %}<span class="back-who"><b>With</b> {{ cast[:3] | join(', ') }}</span>{% endif %}
+  {% endif %}
+  <span class="back-plot">{{ c.overview or 'No summary on TMDB yet.' }}</span>
+  {% if not compact %}<span class="back-more">TMDB {{ icon('chevron') }}</span>{% endif %}
+</span>
 {% endmacro %}

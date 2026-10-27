@@ -230,3 +230,32 @@ body.login main{display:grid;place-items:center;min-height:100vh;padding:24px 16
 .err-page p:last-child{display:flex;justify-content:center;gap:8px;margin:0}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* ---------- card flip: hovering a card/tile turns its poster (.flipper) to the summary + credits (_ui.html flip_back).
+   Gated by width, not (hover)/(pointer): desktop browsers misreport those (Firefox on Linux says "coarse"). Phones: tap opens. */
+.flipper .flip,.flipper .face{position:absolute;inset:0;display:block}
+.flipper .back{display:none}
+@media (min-width:761px){
+  .flipper{overflow:visible;background:none}
+  .flipper .flip{transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1) 0s}
+  .flipper .face{overflow:hidden;border-radius:var(--r);background:var(--surface);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .flipper .back{display:flex;flex-direction:column;gap:6px;padding:14px 13px 12px;transform:rotateY(180deg);
+    background:linear-gradient(180deg,var(--surface-2),var(--surface));box-shadow:inset 0 0 0 1px var(--line-2);font-size:12.5px;line-height:1.45;color:var(--fg-2)}
+  .tile .back{gap:4px;padding:10px 9px;font-size:11.5px;line-height:1.4}
+  .card:hover .flip,.tile:hover .flip,.flipper:focus-visible .flip{transform:perspective(1000px) rotateY(180deg);transition-delay:.25s}   /* delay: sweeping the mouse across the grid doesn't flip every card */
+  .card:hover .poster img,.tile:hover .tile-img img{transform:none}
+  .card:hover .poster::before{opacity:0}                    /* search/people "In library" strip */
+  .back-meta{color:var(--mut);font-size:11.5px}
+  .back-who{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+  .back-who b{color:var(--fg);font-weight:600}
+  .back-plot{flex:1;min-height:0;overflow:hidden;color:var(--fg-2);
+    mask-image:linear-gradient(180deg,#000 75%,transparent);-webkit-mask-image:linear-gradient(180deg,#000 75%,transparent)}
+  .back-more{display:inline-flex;align-items:center;gap:2px;align-self:flex-end;color:var(--link);font-size:11.5px;font-weight:600}
+  .back-more .i{width:12px;height:12px}
+}
+@media (min-width:761px) and (prefers-reduced-motion:reduce){   /* no rotation: swap faces */
+  .card:hover .flip,.tile:hover .flip{transform:none}
+  .flipper .back{transform:none;opacity:0}
+  .card:hover .face:not(.back),.tile:hover .face:not(.back){visibility:hidden}
+  .card:hover .back,.tile:hover .back{opacity:1}
+}

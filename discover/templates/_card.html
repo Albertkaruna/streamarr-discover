@@ -1,8 +1,14 @@
+{% from "_ui.html" import flip_back %}
 <article class="card{{ ' wanted' if c.wanted }}" data-key="{{ c.key }}">
-  <a class="poster" href="https://www.themoviedb.org/{{ c.kind }}/{{ c.tmdb }}" target="_blank" rel="noopener" aria-label="{{ c.title }} on TMDB">
-    {% if c.poster %}<img loading="lazy" decoding="async" src="/img/w342{{ c.poster }}" alt="">{% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
-    {% if c.rating %}<span class="rate">{{ icon('star') }}{{ '%.1f' % c.rating }}</span>{% endif %}
-    {% if c.wanted %}<span class="flag" title="Wanted">{{ icon('check') }}</span>{% endif %}
+  <a class="poster flipper" href="https://www.themoviedb.org/{{ c.kind }}/{{ c.tmdb }}" target="_blank" rel="noopener" aria-label="{{ c.title }} on TMDB">
+    <span class="flip">
+      <span class="face">
+        {% if c.poster %}<img loading="lazy" decoding="async" src="/img/w342{{ c.poster }}" alt="">{% else %}<span class="noposter">{{ c.title }}</span>{% endif %}
+        {% if c.rating %}<span class="rate">{{ icon('star') }}{{ '%.1f' % c.rating }}</span>{% endif %}
+        {% if c.wanted %}<span class="flag" title="Wanted">{{ icon('check') }}</span>{% endif %}
+      </span>
+      {{ flip_back(c) }}
+    </span>
   </a>
   <div class="body">
     <h3 title="{{ c.title }}">{{ c.title }}</h3>
