@@ -74,6 +74,30 @@ def test_mmr_diversifies():
     assert [o["key"] for o in out] == ["m:0", "m:9"]
 
 
+def test_mmr_matches_naive_max_over_picks():
+    import random
+    rnd = random.Random(7)
+    items = {f"m:{i}": item(f"m:{i}") for i in range(60)}
+    vecs = {k: [rnd.random() for _ in range(8)] for k in list(items)[::2]}       # half with embeddings
+    for k in list(items)[1::2]:
+        items[k]["genres"], items[k]["keywords"] = rnd.sample("ABCDEF", 2), rnd.sample("uvwxyz", 3)
+    scored = [{"key": k, "score": round(rnd.random(), 2)} for k in items]          # rounded → ties happen
+    scored.sort(key=lambda x: -x["score"])
+
+    def naive(pool, limit, lam=0.75):
+        pool, out = pool[: limit * 3], []
+        while pool and len(out) < limit:
+            best, best_v = 0, -1e9
+            for i, s in enumerate(pool):
+                pen = max((engine._sim(items[s["key"]], items[o["key"]], vecs) for o in out), default=0)
+                if (v := lam * s["score"] - (1 - lam) * pen) > best_v:
+                    best, best_v = i, v
+            out.append(pool.pop(best))
+        return out
+
+    assert engine.mmr(list(scored), items, vecs, 15) == naive(list(scored), 15)
+
+
 def test_rank_uses_module_weights():
     seed = item("movie:1", ["Drama"], ["prison"])
     match = item("movie:2", ["Drama"], ["prison"], rating=6.0, votes=500)       # fits taste, weaker quality

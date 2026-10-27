@@ -144,7 +144,7 @@ async def refresh():
             state["step"] = "Understanding plots (Gemini)"
             vecs = await ai.ensure_embeddings(http, cands + [s for s, _ in gen + neg])
             cand_by = {c["key"]: c for c in cands}
-            ranked = engine.rank(cands, support, because, pos, neg, vecs, limit=90)   # wider, trimmed to 60 below
+            ranked = await asyncio.to_thread(engine.rank, cands, support, because, pos, neg, vecs, limit=90)   # CPU-heavy: keep pages responsive; wider, trimmed to 60 below
             ranked = engine.lots_quota(ranked, lambda r: (cand_by.get(r["key"]) or {}).get("lang"), lots)
             state["step"] = "Picking the best (Gemini)"
             ranked = await ai.rerank(http, kind, ranked, {c["key"]: c for c in cands}, pos, neg)

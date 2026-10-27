@@ -184,13 +184,13 @@ def _sim(a, b, vecs):
 def mmr(scored, items, vecs, limit, lam=0.75):
     """Maximal Marginal Relevance: each next pick trades score against similarity to picks so far."""
     pool, out = scored[: limit * 3], []
+    pen = [0] * len(pool)          # max similarity to any pick so far — only the newest pick needs comparing each round
     while pool and len(out) < limit:
-        best, best_v = 0, -1e9
-        for i, s in enumerate(pool):
-            pen = max((_sim(items[s["key"]], items[o["key"]], vecs) for o in out), default=0)
-            v = lam * s["score"] - (1 - lam) * pen
-            if v > best_v:
-                best, best_v = i, v
+        if out:
+            last = items[out[-1]["key"]]
+            pen = [max(p, _sim(items[s["key"]], last, vecs)) for p, s in zip(pen, pool)]
+        best = max(range(len(pool)), key=lambda i: (lam * pool[i]["score"] - (1 - lam) * pen[i], -i))
+        pen.pop(best)
         out.append(pool.pop(best))
     return out
 
