@@ -5,7 +5,7 @@ from discover import features as fx
 from discover import store
 
 fx.load()
-from discover.features import alerts, tonight  # noqa: E402
+from discover.features import alerts  # noqa: E402
 
 TODAY = datetime.date(2026, 10, 26)   # a Monday
 
@@ -83,18 +83,6 @@ def test_tab_label_renders_badge():
     assert label.__html__() == "New"
 
 
-def test_choose_weekday_prefers_short_movies():
-    pool = ["movie:1", "movie:2", "movie:3", "tv:9"]
-    rt = {"movie:1": 170, "movie:2": 100, "movie:3": 115}
-    for i in range(7):
-        k = tonight.choose(pool, TODAY + datetime.timedelta(days=i), runtimes=rt)
-        weekend = (TODAY + datetime.timedelta(days=i)).weekday() >= 5
-        assert k in (pool if weekend else ["movie:2", "movie:3"])
-    assert tonight.choose(pool, TODAY, runtimes=rt) == tonight.choose(pool, TODAY, runtimes=rt)  # deterministic
-    assert tonight.choose(pool, TODAY, recent=["movie:2"], runtimes=rt) == "movie:3"           # rotates
-    assert tonight.choose(["tv:9"], TODAY) is None                                              # no shows on weekdays
-
-
 def _seed_picks():
     for i in (980001, 980002):
         store.item_put(f"movie:{i}", {"key": f"movie:{i}", "kind": "movie", "tmdb": i, "title": f"M{i}", "year": "2020",
@@ -102,9 +90,6 @@ def _seed_picks():
     store.save_picks("movie", [{"key": "movie:980001", "score": 1, "why": "", "because": ["Dark"]},
                                {"key": "movie:980002", "score": 0.9, "why": "Tense and smart.", "because": []}])
     store.save_picks("tv", [])
-    store.meta_put("tonight", {})
-    store.meta_put("tonight:recent", [])
-    store.meta_put("tonight:runtime", {"movie:980001": 100, "movie:980002": 100})
     store.remove_want("movie:980001")
     store.remove_want("movie:980002")
     store.set_feedback("movie:980001", None)
@@ -113,33 +98,6 @@ def _seed_picks():
 
 def _cleanup():   # other test modules share this DB
     store.save_picks("movie", [])
-    store.meta_put("tonight", {})
-
-
-def test_tonight_is_stable_for_the_day_and_api_shape():
-    _seed_picks()
-    first = tonight.pick(TODAY)
-    store.add_want(first["key"])                                # wanting it doesn't swap tonight's pick
-    again = tonight.pick(TODAY)
-    assert again["key"] == first["key"] and again["wanted"]
-    nxt = tonight.pick(TODAY + datetime.timedelta(days=1))      # next day: the other one (wanted ones drop out)
-    assert nxt["key"] != first["key"]
-    store.remove_want(first["key"])
-    store.meta_put("tonight", {"date": datetime.date.today().isoformat(), "key": "movie:980001"})
-    j = asyncio.run(tonight.api_tonight())
-    assert set(j) == {"title", "year", "kind", "why", "rating", "poster", "url"}
-    assert j["title"] == "M980001" and j["why"] == "Because you watched Dark." and j["rating"] == 7.8
-    assert j["poster"].endswith("/w342/p.jpg") and j["url"].endswith("/movie/980001") and j["kind"] == "Movie"
-    _cleanup()
-
-
-def test_tonight_dislike_replaces_pick():
-    _seed_picks()
-    first = tonight.pick(TODAY)
-    store.set_feedback(first["key"], "dislike")
-    assert tonight.pick(TODAY)["key"] != first["key"]
-    store.set_feedback(first["key"], None)
-    _cleanup()
 
 
 def test_people_hook_offline():
@@ -164,7 +122,7 @@ def test_people_hook_offline():
     assert [w["key"] for w in got] == ["movie:11", "movie:12"] and got[0]["who"] == "Some Director"
 
 
-def test_new_page_and_hero_render():
+def test_new_page_render():
     from fastapi.testclient import TestClient
 
     from discover import app, config
@@ -178,7 +136,7 @@ def test_new_page_and_hero_render():
     c.cookies.set("discover", config.SESSION)
     saved = {n: getattr(fx, n)[:] for n in ("CARD_SLOTS", "CARD_ACTIONS", "PAGE_TOP")}
     for n in saved:      # other features' templates may be mid-edit; this test is about ours
-        getattr(fx, n)[:] = [x for x in saved[n] if "tonight" in x]
+        getattr(fx, n)[:] = []
     try:
         _render_checks(c)
     finally:
@@ -194,5 +152,4 @@ def _render_checks(c):
     assert 'data-key="movie:980011"' in t and '<i class="badge">2</i>' in t
     _seed_picks()
     t = c.get("/movies").text
-    assert "tn-hero" in t and "/assets/app.css" in t and ".al-row" in c.get("/assets/app.css").text
-    assert "tn-hero" not in c.get("/shows").text
+    assert 'data-key="movie:980001"' in t and "/assets/app.css" in t and ".al-row" in c.get("/assets/app.css").text

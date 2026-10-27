@@ -19,19 +19,9 @@ async function onAct(b) {
   }
 }
 
-// Tonight's pick: one-tap want, the hero stays a hero (own attribute, so onAct doesn't swap it for a card).
-async function onTonight(b) {
-  b.disabled = true;
-  const r = await post(`/act/want/${encodeURIComponent(b.closest(".tn-hero").dataset.key)}`);
-  if (r.ok) { b.className = "btn on"; b.lastChild.nodeValue = "Wanted"; }
-  else b.disabled = false;
-}
-
 document.addEventListener("click", async (e) => {
   const act = e.target.closest("[data-act]");
   if (act) return onAct(act);
-  const tn = e.target.closest("[data-tn]");
-  if (tn) return onTonight(tn);
   const rail = e.target.closest("[data-rail]");
   if (rail) {
     const row = rail.closest(".sec").querySelector(".rail");

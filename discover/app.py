@@ -114,7 +114,7 @@ async def auth(req: Request, call_next):
         return r
     if hmac.compare_digest(req.cookies.get("discover", ""), config.SESSION):
         return await call_next(req)
-    if p in ("/api/summary", "/api/tonight", "/api/radar") and _basic_ok(req):       # Homepage tiles only
+    if p in ("/api/summary", "/api/radar") and _basic_ok(req):       # Homepage tiles only
         return await call_next(req)
     if req.headers.get("x-requested-with") == "fetch":
         return JSONResponse({"error": "signed out"}, status_code=401)

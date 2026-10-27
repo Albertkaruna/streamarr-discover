@@ -31,7 +31,7 @@ Excluded: anything you own, already asked for, wanted, or ✕'d; unreleased; < 3
 
 | Where | What |
 |---|---|
-| Movies / Shows | Tonight's pick hero · themed shelves ("Tamil thrillers", "Because you loved X"…) from the whole candidate pool · Hidden gems rail · genre / mood (Gemini-tagged) / language / Short / Binge-able / New-to-me chips · "?" explain sheet · ▶ trailer · More like this · download status + size |
+| Movies / Shows | themed shelves ("Tamil thrillers", "Because you loved X"…) from the whole candidate pool · Hidden gems rail · Shows / Anime · country · genre / mood (Gemini-tagged) / language / Short / Binge-able / New-to-me chips · "?" explain sheet · ▶ trailer · More like this · download status + size |
 | + Want sheet | seasons (shows) · **Tamil audio if available** · 720p / 1080p → one of four Sonarr/Radarr lists (plain, Tamil, 720p, Tamil 720p) |
 | Search | everything that exists (TMDB, Open Library, iTunes), marked In library / Downloading / Wanted |
 | Swipe | one card at a time: 👍 / ✕ / + Want / Seen it, library titles mixed in, "why not?" behind ✕ |
